@@ -1,17 +1,11 @@
-import {
-  LayoutDashboard,
-  FileText,
-  Settings,
-  History,
-  User,
-} from "lucide-react";
+import { FileText } from "lucide-react";
 import { Link } from "react-router";
 
 import { navItems } from "../constants/navigation";
 
 export function Sidebar() {
   return (
-    <aside className="hidden md:flex w-64 h-screen fixed left-0 top-0 bg-slate-900/30 backdrop-blur-xl border-r border-white/10 flex-col p-6 z-50">
+    <aside className="hidden lg:flex w-64 h-screen fixed left-0 top-0 bg-slate-900/30 backdrop-blur-xl border-r border-white/10 flex-col p-6 z-50">
       <div className="flex items-center gap-3 mb-10 px-2">
         <div className="w-8 h-8 rounded-lg bg-linear-to-br from-blue-500 to-purple-600 shadow-[0_0_15px_rgba(59,130,246,0.5)] flex items-center justify-center">
           <FileText className="w-5 h-5 text-white" />
