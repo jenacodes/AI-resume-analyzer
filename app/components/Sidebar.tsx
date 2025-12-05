@@ -19,7 +19,7 @@ export function Sidebar() {
         {navItems.map((item) => (
           <Link
             key={item.label}
-            to={item.to}
+            to={item.href}
             className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all duration-300 group"
           >
             <item.icon className="w-5 h-5 group-hover:text-blue-400 group-hover:drop-shadow-[0_0_8px_rgba(96,165,250,0.5)] transition-all" />
