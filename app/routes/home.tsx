@@ -8,6 +8,8 @@ import { resumes } from "../../constants";
 import { Link } from "react-router";
 import ResumeCard from "~/components/ResumeCard";
 import Navbar from "~/components/Navbar";
+import { useRouteLoaderData } from "react-router";
+import type { loader } from "../root";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -18,8 +20,10 @@ export function meta({}: Route.MetaArgs) {
     },
   ];
 }
-
 export default function Home() {
+  const rootData = useRouteLoaderData<typeof loader>("root");
+  const user = rootData?.user;
+
   // Calculate average score
   const averageScore = Math.round(
     resumes.reduce((acc, resume) => acc + resume.feedback.overallScore, 0) /
@@ -27,7 +31,7 @@ export default function Home() {
   );
   return (
     <div className="min-h-screen bg-slate-950 text-white font-sans selection:bg-blue-500/30">
-      <Sidebar />
+      <Sidebar user={user} />
 
       <main className="lg:pl-64 pl-0 min-h-screen relative overflow-hidden">
         {/* Ambient Background Effects */}

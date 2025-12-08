@@ -11,6 +11,8 @@ import { db } from "~/db.server";
 import bcrypt from "bcryptjs";
 import { commitSession, getSession } from "~/sessions";
 
+import { checkRateLimit, loginRateLimiter } from "~/services/rate-limit.server";
+
 export function meta({}: Route.MetaArgs) {
   return [
     { title: "Login - ResumeAI" },
@@ -19,6 +21,14 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function action({ request }: Route.ActionArgs) {
+  // 1. Rate Limiting Check
+  const ip = request.headers.get("x-forwarded-for") || "unknown";
+  const limitResult = await checkRateLimit(loginRateLimiter, ip);
+
+  if (!limitResult.success) {
+    return { errors: { email: limitResult.error } as Record<string, string> };
+  }
+
   const formData = await request.formData();
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;

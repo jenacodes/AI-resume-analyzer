@@ -23,6 +23,28 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
+import { db } from "~/db.server";
+import { getSession } from "~/sessions";
+
+export async function loader({ request }: Route.LoaderArgs) {
+  try {
+    const session = await getSession(request.headers.get("Cookie"));
+    const userId = session.get("userId");
+
+    if (!userId) {
+      // Early return if no userId in session
+      return { user: null };
+    }
+
+    const user = await db.user.findUnique({ where: { id: userId } });
+    return { user };
+  } catch (error) {
+    console.error("Loader error:", error);
+    // Graceful fallback in case of DB/session errors
+    return { user: null };
+  }
+}
+
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
@@ -33,7 +55,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <script src="https://js.puter.com/v2/"></script>
         {children}
         <ScrollRestoration />
         <Scripts />

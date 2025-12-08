@@ -2,8 +2,10 @@ import type { Route } from "./+types/cover-letter";
 import { Sidebar } from "../components/Sidebar";
 import { CoverLetterForm } from "../components/CoverLetterForm";
 import { CoverLetterPreview } from "../components/CoverLetterPreview";
-import { useState } from "react";
+import { use, useState } from "react";
 import Navbar from "~/components/Navbar";
+import { useRouteLoaderData } from "react-router";
+import type { loader } from "../root";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -16,6 +18,8 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function CoverLetter() {
+  const rootData = useRouteLoaderData<typeof loader>("root");
+  const user = rootData?.user;
   const [selectedResumeId, setSelectedResumeId] = useState("");
   const [jobDescription, setJobDescription] = useState("");
   const [generatedContent, setGeneratedContent] = useState("");
@@ -43,7 +47,7 @@ Sincerely,
     <>
       <Navbar />
       <div className="min-h-screen bg-slate-950 text-white font-sans selection:bg-blue-500/30 flex">
-        <Sidebar />
+        <Sidebar user={user} />
 
         <main className="flex-1 md:pl-64 min-h-screen relative overflow-hidden flex flex-col">
           {/* Ambient Background Effects */}

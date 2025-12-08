@@ -1,9 +1,14 @@
 import { FileText } from "lucide-react";
 import { Link } from "react-router";
+import type { User } from "@prisma/client";
 
 import { navItems } from "../constants/navigation";
 
-export function Sidebar() {
+interface SidebarProps {
+  user?: User | null;
+}
+
+export function Sidebar({ user }: SidebarProps) {
   return (
     <aside className="hidden lg:flex w-64 h-screen fixed left-0 top-0 bg-slate-900/30 backdrop-blur-xl border-r border-white/10 flex-col p-6 z-50">
       <div className="flex items-center gap-3 mb-10 px-2">
@@ -32,12 +37,18 @@ export function Sidebar() {
         <div className="flex items-center gap-3 px-2">
           <div className="w-10 h-10 rounded-full bg-linear-to-tr from-purple-500 to-blue-500 p-[2px]">
             <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center">
-              <span className="text-sm font-bold text-white">JD</span>
+              <span className="text-sm font-bold text-white">
+                {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
+              </span>
             </div>
           </div>
           <div>
-            <p className="text-sm font-medium text-white">John Doe</p>
-            <p className="text-xs text-slate-400">Pro Plan</p>
+            <p className="text-sm font-medium text-white">
+              {user?.name || "Guest User"}
+            </p>
+            <p className="text-xs text-slate-400">
+              {user ? "Pro Plan" : "Free Plan"}
+            </p>
           </div>
         </div>
       </div>
