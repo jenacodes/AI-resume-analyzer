@@ -14,6 +14,16 @@ import {
 import { useState } from "react";
 import Navbar from "~/components/Navbar";
 import AmbientBackground from "~/components/AmbientBackground";
+import { getSession } from "~/sessions";
+import { redirect } from "react-router";
+
+export async function loader({ request }: Route.LoaderArgs) {
+  const session = await getSession(request.headers.get("Cookie"));
+  if (!session.has("userId")) {
+    throw redirect("/login");
+  }
+  return null;
+}
 
 export function meta({}: Route.MetaArgs) {
   return [

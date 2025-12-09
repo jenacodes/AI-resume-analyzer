@@ -4,8 +4,18 @@ import { CoverLetterForm } from "../components/CoverLetterForm";
 import { CoverLetterPreview } from "../components/CoverLetterPreview";
 import { use, useState } from "react";
 import Navbar from "~/components/Navbar";
+import { redirect } from "react-router";
+import { getSession } from "~/sessions";
 
 import AmbientBackground from "~/components/AmbientBackground";
+
+export async function loader({ request }: Route.LoaderArgs) {
+  const session = await getSession(request.headers.get("Cookie"));
+  if (!session.has("userId")) {
+    throw redirect("/login");
+  }
+  return null;
+}
 
 export function meta({}: Route.MetaArgs) {
   return [

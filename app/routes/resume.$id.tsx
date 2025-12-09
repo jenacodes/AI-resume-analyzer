@@ -4,9 +4,10 @@ import { PDFViewer } from "../components/PDFViewer";
 import { AnalysisPanel } from "../components/AnalysisPanel";
 import { Sidebar } from "../components/Sidebar";
 import { ArrowLeft } from "lucide-react";
-import { Link } from "react-router";
+import { Link, redirect } from "react-router";
 import Navbar from "../components/Navbar";
 import AmbientBackground from "~/components/AmbientBackground";
+import { getSession } from "~/sessions";
 
 export function meta({ params }: Route.MetaArgs) {
   const resume = resumes.find((r) => r.id === params.id);
@@ -16,7 +17,12 @@ export function meta({ params }: Route.MetaArgs) {
   ];
 }
 
-export function loader({ params }: Route.LoaderArgs) {
+export async function loader({ request, params }: Route.LoaderArgs) {
+  const session = await getSession(request.headers.get("Cookie"));
+  if (!session.has("userId")) {
+    throw redirect("/login");
+  }
+
   const resume = resumes.find((r) => r.id === params.id);
   if (!resume) {
     throw new Response("Not Found", { status: 404 });

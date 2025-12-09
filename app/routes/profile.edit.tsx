@@ -1,9 +1,18 @@
 import type { Route } from "./+types/profile.edit";
 import { Sidebar } from "../components/Sidebar";
 import { ArrowLeft, Upload, Save, X } from "lucide-react";
-import { Link } from "react-router";
+import { Link, redirect } from "react-router";
 import { useState } from "react";
 import AmbientBackground from "~/components/AmbientBackground";
+import { getSession } from "~/sessions";
+
+export async function loader({ request }: Route.LoaderArgs) {
+  const session = await getSession(request.headers.get("Cookie"));
+  if (!session.has("userId")) {
+    throw redirect("/login");
+  }
+  return null;
+}
 
 export function meta({}: Route.MetaArgs) {
   return [
