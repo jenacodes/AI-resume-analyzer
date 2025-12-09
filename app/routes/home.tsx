@@ -5,11 +5,19 @@ import { StatsCard } from "../components/StatsCard";
 import { UploadZone } from "../components/UploadZone";
 import { Award, Briefcase, TrendingUp, Zap } from "lucide-react";
 import { resumes } from "../../constants";
-import { Link } from "react-router";
+import { Link, redirect } from "react-router";
 import ResumeCard from "~/components/ResumeCard";
 import Navbar from "~/components/Navbar";
-import { useRouteLoaderData } from "react-router";
-import type { loader } from "../root";
+import AmbientBackground from "~/components/AmbientBackground";
+import { getSession } from "~/sessions";
+
+export async function loader({ request }: Route.LoaderArgs) {
+  const session = await getSession(request.headers.get("Cookie"));
+  if (!session.has("userId")) {
+    throw redirect("/login");
+  }
+  return null;
+}
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -21,9 +29,6 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 export default function Home() {
-  const rootData = useRouteLoaderData<typeof loader>("root");
-  const user = rootData?.user;
-
   // Calculate average score
   const averageScore = Math.round(
     resumes.reduce((acc, resume) => acc + resume.feedback.overallScore, 0) /
@@ -31,14 +36,11 @@ export default function Home() {
   );
   return (
     <div className="min-h-screen bg-slate-950 text-white font-sans selection:bg-blue-500/30">
-      <Sidebar user={user} />
+      <Sidebar />
 
       <main className="lg:pl-64 pl-0 min-h-screen relative overflow-hidden">
         {/* Ambient Background Effects */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
-          <div className="absolute top-[-10%] left-[20%] w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse" />
-          <div className="absolute bottom-[-10%] right-[10%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen" />
-        </div>
+        <AmbientBackground />
 
         <Navbar />
         <div className="p-8 max-w-7xl mx-auto space-y-8">

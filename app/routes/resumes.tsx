@@ -4,9 +4,19 @@ import { Sidebar } from "../components/Sidebar";
 import { ResumeGridCard } from "../components/ResumeGridCard";
 import { FilterBar } from "../components/FilterBar";
 import { resumes } from "../../constants";
-import { Link } from "react-router";
+import { Link, redirect } from "react-router";
 import { Plus, Search } from "lucide-react";
 import Navbar from "~/components/Navbar";
+import AmbientBackground from "~/components/AmbientBackground";
+import { getSession } from "~/sessions";
+
+export async function loader({ request }: Route.LoaderArgs) {
+  const session = await getSession(request.headers.get("Cookie"));
+  if (!session.has("userId")) {
+    throw redirect("/login");
+  }
+  return null;
+}
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -32,10 +42,7 @@ export default function MyResumes() {
 
         <main className="flex-1 md:pl-64 min-h-screen relative overflow-hidden flex flex-col">
           {/* Ambient Background Effects */}
-          <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
-            <div className="absolute top-[-20%] left-[10%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen" />
-            <div className="absolute bottom-[-20%] right-[10%] w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px] mix-blend-screen" />
-          </div>
+          <AmbientBackground />
 
           <div className="flex-1 overflow-y-auto p-6 md:p-12">
             <div className="max-w-7xl mx-auto space-y-8">

@@ -6,6 +6,7 @@ import { Sidebar } from "../components/Sidebar";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router";
 import Navbar from "../components/Navbar";
+import AmbientBackground from "~/components/AmbientBackground";
 
 export function meta({ params }: Route.MetaArgs) {
   const resume = resumes.find((r) => r.id === params.id);
@@ -34,10 +35,7 @@ export default function ResumeDetail({ loaderData }: Route.ComponentProps) {
 
         <main className="flex-1 lg:ml-64 h-screen flex flex-col relative overflow-hidden">
           {/* Ambient Background Effects */}
-          <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
-            <div className="absolute top-[-20%] right-[-10%] w-[800px] h-[800px] bg-blue-600/10 rounded-full blur-[120px] mix-blend-screen" />
-            <div className="absolute bottom-[-20%] left-[10%] w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen" />
-          </div>
+          <AmbientBackground />
 
           {/* Header */}
           <header className="h-16 border-b border-white/10 bg-slate-900/50 backdrop-blur-md flex items-center justify-between px-6 shrink-0 z-10">

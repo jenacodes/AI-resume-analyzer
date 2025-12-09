@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import Navbar from "~/components/Navbar";
+import AmbientBackground from "~/components/AmbientBackground";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -106,10 +107,7 @@ export default function Settings() {
 
         <main className="flex-1 md:pl-64 min-h-screen relative overflow-hidden flex flex-col">
           {/* Ambient Background Effects */}
-          <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
-            <div className="absolute top-[-10%] right-[20%] w-[700px] h-[700px] bg-blue-600/5 rounded-full blur-[120px] mix-blend-screen" />
-            <div className="absolute bottom-[-10%] left-[10%] w-[500px] h-[500px] bg-purple-600/5 rounded-full blur-[120px] mix-blend-screen" />
-          </div>
+          <AmbientBackground />
 
           <div className="flex-1 overflow-y-auto p-6 md:p-12">
             <div className="max-w-4xl mx-auto space-y-8">

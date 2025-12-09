@@ -2,8 +2,18 @@ import type { Route } from "./+types/scan";
 import { Sidebar } from "../components/Sidebar";
 import { UploadZone } from "../components/UploadZone";
 import { ArrowLeft, Sparkles, Briefcase, FileText } from "lucide-react";
-import { Link } from "react-router";
+import { Link, redirect } from "react-router";
 import Navbar from "~/components/Navbar";
+import AmbientBackground from "~/components/AmbientBackground";
+import { getSession } from "~/sessions";
+
+export async function loader({ request }: Route.LoaderArgs) {
+  const session = await getSession(request.headers.get("Cookie"));
+  if (!session.has("userId")) {
+    throw redirect("/login");
+  }
+  return null;
+}
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -21,11 +31,8 @@ export default function NewScan() {
 
         <main className="flex-1 md:pl-64 min-h-screen relative overflow-hidden flex flex-col">
           {/* Ambient Background Effects */}
-          <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
-            <div className="absolute top-[-20%] right-[20%] w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[120px] mix-blend-screen animate-pulse" />
-            <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[120px] mix-blend-screen" />
-          </div>
 
+          <AmbientBackground />
           {/* Header */}
           <header className="h-20 md:border border-white/10 md:bg-slate-900/50 backdrop-blur-md flex items-center px-8 shrink-0 z-10 mt-7">
             <Link

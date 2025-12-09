@@ -4,8 +4,8 @@ import { CoverLetterForm } from "../components/CoverLetterForm";
 import { CoverLetterPreview } from "../components/CoverLetterPreview";
 import { use, useState } from "react";
 import Navbar from "~/components/Navbar";
-import { useRouteLoaderData } from "react-router";
-import type { loader } from "../root";
+
+import AmbientBackground from "~/components/AmbientBackground";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -18,8 +18,6 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function CoverLetter() {
-  const rootData = useRouteLoaderData<typeof loader>("root");
-  const user = rootData?.user;
   const [selectedResumeId, setSelectedResumeId] = useState("");
   const [jobDescription, setJobDescription] = useState("");
   const [generatedContent, setGeneratedContent] = useState("");
@@ -47,14 +45,11 @@ Sincerely,
     <>
       <Navbar />
       <div className="min-h-screen bg-slate-950 text-white font-sans selection:bg-blue-500/30 flex">
-        <Sidebar user={user} />
+        <Sidebar />
 
         <main className="flex-1 md:pl-64 min-h-screen relative overflow-hidden flex flex-col">
           {/* Ambient Background Effects */}
-          <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
-            <div className="absolute top-[-10%] right-[30%] w-[600px] h-[600px] bg-blue-600/5 rounded-full blur-[120px] mix-blend-screen" />
-            <div className="absolute bottom-[-10%] left-[20%] w-[500px] h-[500px] bg-purple-600/5 rounded-full blur-[120px] mix-blend-screen" />
-          </div>
+          <AmbientBackground />
 
           <div className="flex-1 overflow-y-auto p-6 md:p-12">
             <div className="max-w-7xl mx-auto h-full flex flex-col">
