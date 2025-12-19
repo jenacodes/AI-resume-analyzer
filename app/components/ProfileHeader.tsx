@@ -1,7 +1,11 @@
 import { Shield, Mail, MapPin } from "lucide-react";
 import { Link } from "react-router";
+import { useRouteLoaderData } from "react-router";
+import type { loader } from "../root";
 
 export function ProfileHeader() {
+  const rootData = useRouteLoaderData<typeof loader>("root");
+  const user = rootData?.user;
   return (
     <div className="bg-slate-900/50 border border-white/10 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 md:gap-8 backdrop-blur-xl relative overflow-hidden">
       {/* Background Glow */}
@@ -22,7 +26,9 @@ export function ProfileHeader() {
       {/* User Info */}
       <div className="text-center md:text-left flex-1">
         <div className="flex items-center justify-center md:justify-start gap-3 mb-2">
-          <h1 className="text-2xl md:text-3xl font-bold text-white">Jena K.</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-white">
+            {user?.name}
+          </h1>
           <span className="px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 text-xs font-bold border border-blue-500/20 flex items-center gap-1">
             <Shield className="w-3 h-3" />
             PRO PLAN

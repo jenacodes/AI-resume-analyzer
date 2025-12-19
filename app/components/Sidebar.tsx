@@ -1,14 +1,13 @@
 import { FileText } from "lucide-react";
-import { Link } from "react-router";
-import type { User } from "@prisma/client";
+import { Link, useRouteLoaderData } from "react-router";
+import type { loader } from "~/root";
 
 import { navItems } from "../constants/navigation";
 
-interface SidebarProps {
-  user?: User | null;
-}
+export function Sidebar() {
+  const rootData = useRouteLoaderData<typeof loader>("root");
+  const user = rootData?.user;
 
-export function Sidebar({ user }: SidebarProps) {
   return (
     <aside className="hidden lg:flex w-64 h-screen fixed left-0 top-0 bg-slate-900/30 backdrop-blur-xl border-r border-white/10 flex-col p-6 z-50">
       <div className="flex items-center gap-3 mb-10 px-2">

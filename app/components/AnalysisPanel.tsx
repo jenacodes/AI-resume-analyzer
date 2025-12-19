@@ -18,6 +18,13 @@ interface AnalysisPanelProps {
 }
 
 export function AnalysisPanel({ feedback }: AnalysisPanelProps) {
+  if (!feedback || !feedback.overallScore) {
+    return (
+      <div className="h-full flex items-center justify-center text-slate-400">
+        <p>Analysis pending or unavailable.</p>
+      </div>
+    );
+  }
   return (
     <div className="h-auto md:h-full md:overflow-y-auto p-4 md:p-8 space-y-8 bg-slate-950/50">
       {/* Overall Score Header */}
