@@ -1,21 +1,14 @@
 import type { Route } from "./+types/resume.$id";
-import { resumes } from "../../constants";
-import { PDFViewer } from "../components/PDFViewer";
-import { AnalysisPanel } from "../components/AnalysisPanel";
 import { Sidebar } from "../components/Sidebar";
+import { AnalysisPanel } from "../components/AnalysisPanel";
 import { ArrowLeft } from "lucide-react";
 import { Link, redirect } from "react-router";
 import Navbar from "../components/Navbar";
 import AmbientBackground from "~/components/AmbientBackground";
 import { getSession } from "~/sessions";
-
-export function meta({ params }: Route.MetaArgs) {
-  const resume = resumes.find((r) => r.id === params.id);
-  return [
-    { title: resume ? `${resume.jobTitle} - Analysis` : "Resume Analysis" },
-    { name: "description", content: "Detailed AI analysis of your resume" },
-  ];
-}
+import { db } from "~/db.server";
+import type { AnalysisResult } from "~/services/gemini.server";
+import PDFViewer from "../components/PDFViewer";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
@@ -23,15 +16,30 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     throw redirect("/login");
   }
 
-  const resume = resumes.find((r) => r.id === params.id);
+  const resume = await db.resume.findUnique({
+    where: { id: params.id },
+  });
+
   if (!resume) {
     throw new Response("Not Found", { status: 404 });
   }
-  return { resume };
+
+  // Parse the JSON string back to object
+  const feedback = JSON.parse(resume.analysisJson) as AnalysisResult;
+
+  return { resume, feedback };
+}
+
+export function meta({ data }: Route.MetaArgs) {
+  if (!data) return [{ title: "Resume Not Found" }];
+  return [
+    { title: `${data.resume.title} - Analysis` },
+    { name: "description", content: "Detailed AI analysis of your resume" },
+  ];
 }
 
 export default function ResumeDetail({ loaderData }: Route.ComponentProps) {
-  const { resume } = loaderData;
+  const { resume, feedback } = loaderData;
 
   return (
     <section>
@@ -53,8 +61,8 @@ export default function ResumeDetail({ loaderData }: Route.ComponentProps) {
                 <ArrowLeft className="w-5 h-5" />
               </Link>
               <div>
-                <h1 className="font-semibold text-white">{resume.jobTitle}</h1>
-                <p className="text-xs text-slate-400">{resume.companyName}</p>
+                <h1 className="font-semibold text-white">{resume.title}</h1>
+                <p className="text-xs text-slate-400">{resume.company}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -68,12 +76,12 @@ export default function ResumeDetail({ loaderData }: Route.ComponentProps) {
           <div className="flex-1 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden">
             {/* Left Panel: PDF Viewer */}
             <div className="w-full md:w-1/2 h-96 md:h-full border-b md:border-b-0 md:border-r border-white/10 bg-slate-900/30 shrink-0">
-              <PDFViewer url={resume.imagePath} />
+              <PDFViewer url={resume.filePath} />
             </div>
 
             {/* Right Panel: Analysis */}
             <div className="w-full md:w-1/2 h-auto md:h-full bg-slate-950/50">
-              <AnalysisPanel feedback={resume.feedback} />
+              <AnalysisPanel feedback={feedback} />
             </div>
           </div>
         </main>
