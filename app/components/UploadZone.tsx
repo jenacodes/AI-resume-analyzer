@@ -8,7 +8,7 @@ export function UploadZone({ name }: { name?: string }) {
   const onDrop = useCallback((acceptedFiles: File[]) => {
     // 1. Check if any files were dropped
     if (acceptedFiles.length > 0) {
-      // 2. We only want the first file (since we set maxFiles: 1)
+      // 2. I only want the first file (set maxFiles: 1)
       const selectedFile = acceptedFiles[0];
       setFile(selectedFile);
       console.log("File dropped:", selectedFile.name);
