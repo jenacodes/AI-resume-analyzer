@@ -39,8 +39,6 @@ interface PDFViewerProps {
 //   );
 // }
 
-import React from "react";
-
 const PDFViewer = ({ url }: PDFViewerProps) => {
   return (
     <div className="h-full flex flex-col bg-slate-900/50 backdrop-blur-xl border-r border-white/10">

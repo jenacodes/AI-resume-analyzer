@@ -3,6 +3,7 @@ import React, { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 
 export function UploadZone({ name }: { name?: string }) {
+  // 1. Track the selected file
   const [file, setFile] = React.useState<File | null>(null);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -10,6 +11,7 @@ export function UploadZone({ name }: { name?: string }) {
     if (acceptedFiles.length > 0) {
       // 2. I only want the first file (set maxFiles: 1)
       const selectedFile = acceptedFiles[0];
+      // 3. Do something with the file
       setFile(selectedFile);
       console.log("File dropped:", selectedFile.name);
     }
