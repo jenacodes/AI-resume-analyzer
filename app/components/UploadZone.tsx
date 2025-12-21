@@ -11,7 +11,6 @@ export function UploadZone({ name }: { name?: string }) {
     // 1. Handling the Rejections First
     if (fileRejections.length > 0) {
       const rejection = fileRejections[0];
-      // This will give specific error codes like "file-invalid-type" or "file-too-large"
       const code = rejection.errors[0].code;
 
       if (code === "file-invalid-type") {
@@ -25,12 +24,12 @@ export function UploadZone({ name }: { name?: string }) {
     // 2. Handling Success
     // Check if any files were dropped
     if (acceptedFiles.length > 0) {
-      // 2. I only want the first file (set maxFiles: 1)
+      // I only want the first file (set maxFiles: 1)
       const selectedFile = acceptedFiles[0];
       console.log(selectedFile); // <-
-      // 3. Do something with the file
+      // Do something with the file
       setFile(selectedFile);
-      // 4. Clear any previous errors
+      // Clear any previous errors
       setError(null);
       console.log("File dropped:", selectedFile.name);
     }
