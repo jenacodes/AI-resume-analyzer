@@ -11,31 +11,25 @@ import type { AnalysisResult } from "~/services/gemini.server";
 import PDFViewer from "../components/PDFViewer";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
+  //Checked if user is authenticated
   const session = await getSession(request.headers.get("Cookie"));
   if (!session.has("userId")) {
     throw redirect("/login");
   }
 
+  //Fetch the resume by ID
   const resume = await db.resume.findUnique({
     where: { id: params.id },
   });
 
+  //If resume not found, throw 404
   if (!resume) {
     throw new Response("Not Found", { status: 404 });
   }
 
   // Parse the JSON string back to object
   const feedback = JSON.parse(resume.analysisJson) as AnalysisResult;
-
   return { resume, feedback };
-}
-
-export function meta({ data }: Route.MetaArgs) {
-  if (!data) return [{ title: "Resume Not Found" }];
-  return [
-    { title: `${data.resume.title} - Analysis` },
-    { name: "description", content: "Detailed AI analysis of your resume" },
-  ];
 }
 
 export default function ResumeDetail({ loaderData }: Route.ComponentProps) {
