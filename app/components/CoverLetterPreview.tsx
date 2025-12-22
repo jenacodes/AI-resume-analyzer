@@ -19,26 +19,26 @@ export function CoverLetterPreview({
   };
 
   return (
-    <div className="h-full flex flex-col bg-white text-slate-900 rounded-xl overflow-hidden shadow-2xl">
-      <div className="flex-1 p-8 overflow-y-auto">
+    <div className="h-full flex flex-col bg-white border-4 border-black shadow-neo overflow-hidden">
+      <div className="flex-1 p-8 overflow-y-auto bg-white">
         {content ? (
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="w-full h-full resize-none outline-none text-base leading-relaxed font-serif bg-transparent"
+            className="w-full h-full resize-none outline-none text-base leading-relaxed font-serif bg-transparent text-black"
           />
         ) : (
-          <div className="h-full flex items-center justify-center text-slate-400 italic">
+          <div className="h-full flex items-center justify-center text-gray-400 italic font-bold">
             Your generated cover letter will appear here...
           </div>
         )}
       </div>
 
-      <div className="bg-slate-100 p-4 border-t border-slate-200 flex justify-end gap-3">
+      <div className="bg-neo-bg p-4 border-t-4 border-black flex justify-end gap-3">
         <button
           onClick={handleCopy}
           disabled={!content}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
+          className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-black shadow-neo-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:hover:shadow-neo-sm transition-all text-black font-bold uppercase text-sm"
         >
           {copied ? (
             <>
@@ -54,7 +54,7 @@ export function CoverLetterPreview({
         </button>
         <button
           disabled={!content}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
+          className="flex items-center gap-2 px-4 py-2 bg-black border-2 border-black text-white hover:bg-neo-primary hover:text-white hover:border-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-bold uppercase text-sm shadow-neo-sm hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
         >
           <Download className="w-4 h-4" />
           Download PDF

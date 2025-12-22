@@ -11,48 +11,22 @@ const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 // 2. Define the exact shape of data we want back
 
+export interface FeedbackItem {
+  score: number;
+  tips: Array<{
+    type: "good" | "improve";
+    tip: string;
+    explanation?: string;
+  }>;
+}
+
 export interface AnalysisResult {
   overallScore: number;
-  ATS: {
-    score: number;
-    tips: Array<{
-      type: "good" | "improve";
-      tip: string;
-      explanation?: string;
-    }>;
-  };
-  toneAndStyle: {
-    score: number;
-    tips: Array<{
-      type: "good" | "improve";
-      tip: string;
-      explanation?: string;
-    }>;
-  };
-  content: {
-    score: number;
-    tips: Array<{
-      type: "good" | "improve";
-      tip: string;
-      explanation?: string;
-    }>;
-  };
-  structure: {
-    score: number;
-    tips: Array<{
-      type: "good" | "improve";
-      tip: string;
-      explanation?: string;
-    }>;
-  };
-  skills: {
-    score: number;
-    tips: Array<{
-      type: "good" | "improve";
-      tip: string;
-      explanation?: string;
-    }>;
-  };
+  ATS: FeedbackItem;
+  toneAndStyle: FeedbackItem;
+  content: FeedbackItem;
+  structure: FeedbackItem;
+  skills: FeedbackItem;
 }
 
 export async function analyzeResume(

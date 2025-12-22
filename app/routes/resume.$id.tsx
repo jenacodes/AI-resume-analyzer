@@ -4,7 +4,7 @@ import { AnalysisPanel } from "../components/AnalysisPanel";
 import { ArrowLeft } from "lucide-react";
 import { Link, redirect } from "react-router";
 import Navbar from "../components/Navbar";
-import AmbientBackground from "~/components/AmbientBackground";
+
 import { getSession } from "~/sessions";
 import { db } from "~/db.server";
 import type { AnalysisResult } from "~/services/gemini.server";
@@ -38,29 +38,30 @@ export default function ResumeDetail({ loaderData }: Route.ComponentProps) {
   return (
     <section>
       <Navbar />
-      <div className="min-h-screen bg-slate-950 text-white font-sans selection:bg-blue-500/30 flex">
+      <div className="min-h-screen bg-neo-bg text-black font-sans selection:bg-neo-primary selection:text-white flex">
         <Sidebar />
 
         <main className="flex-1 lg:ml-64 h-screen flex flex-col relative overflow-hidden">
-          {/* Ambient Background Effects */}
-          <AmbientBackground />
-
           {/* Header */}
-          <header className="h-16 border-b border-white/10 bg-slate-900/50 backdrop-blur-md flex items-center justify-between px-6 shrink-0 z-10">
+          <header className="h-20 border-b-4 border-black bg-white flex items-center justify-between px-6 shrink-0 z-10">
             <div className="flex items-center gap-4">
               <Link
                 to="/"
-                className="p-2 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition"
+                className="p-2 bg-white border-2 border-black shadow-neo-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all text-black"
               >
                 <ArrowLeft className="w-5 h-5" />
               </Link>
               <div>
-                <h1 className="font-semibold text-white">{resume.title}</h1>
-                <p className="text-xs text-slate-400">{resume.company}</p>
+                <h1 className="font-black text-2xl uppercase tracking-tight text-black">
+                  {resume.title}
+                </h1>
+                <p className="text-sm font-bold text-gray-600 uppercase">
+                  {resume.company}
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <span className="px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-medium">
+              <span className="px-4 py-1.5 bg-neo-accent border-2 border-black shadow-neo-sm text-black text-xs font-black uppercase tracking-wide transform -rotate-2">
                 AI Analysis Complete
               </span>
             </div>
@@ -69,12 +70,12 @@ export default function ResumeDetail({ loaderData }: Route.ComponentProps) {
           {/* Split View Content */}
           <div className="flex-1 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden">
             {/* Left Panel: PDF Viewer */}
-            <div className="w-full md:w-1/2 h-96 md:h-full border-b md:border-b-0 md:border-r border-white/10 bg-slate-900/30 shrink-0">
+            <div className="w-full md:w-1/2 h-96 md:h-full border-b-4 md:border-b-0 md:border-r-4 border-black bg-gray-100 shrink-0">
               <PDFViewer url={resume.filePath} />
             </div>
 
             {/* Right Panel: Analysis */}
-            <div className="w-full md:w-1/2 h-auto md:h-full bg-slate-950/50">
+            <div className="w-full md:w-1/2 h-auto md:h-full bg-neo-bg">
               <AnalysisPanel feedback={feedback} />
             </div>
           </div>

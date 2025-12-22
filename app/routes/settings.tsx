@@ -3,17 +3,15 @@ import { Sidebar } from "../components/Sidebar";
 import {
   Shield,
   Bell,
-  Moon,
   Trash2,
   Lock,
   Mail,
-  Smartphone,
   Download,
   ChevronRight,
 } from "lucide-react";
 import { useState } from "react";
 import Navbar from "~/components/Navbar";
-import AmbientBackground from "~/components/AmbientBackground";
+
 import { getSession } from "~/sessions";
 import { redirect } from "react-router";
 
@@ -48,13 +46,15 @@ function ToggleSection({
   children,
 }: ToggleSectionProps) {
   return (
-    <div className="bg-slate-900/50 border border-white/10 rounded-2xl overflow-hidden">
-      <div className="p-6 border-b border-white/5">
-        <h3 className="text-lg font-bold text-white flex items-center gap-2">
-          <Icon className={`w-5 h-5 ${color}`} />
+    <div className="bg-white border-4 border-black shadow-neo overflow-hidden">
+      <div className="p-6 border-b-4 border-black bg-neo-bg">
+        <h3 className="text-xl font-black uppercase text-black flex items-center gap-2">
+          <Icon className={`w-6 h-6 text-black`} />
           {title}
         </h3>
-        <p className="text-sm text-slate-400 mt-1 ml-7">{description}</p>
+        <p className="text-sm text-gray-600 font-bold mt-1 ml-8 uppercase tracking-wide">
+          {description}
+        </p>
       </div>
       <div className="p-6 space-y-6">{children}</div>
     </div>
@@ -77,17 +77,17 @@ function ToggleItem({
   return (
     <div className="flex items-center justify-between">
       <div>
-        <p className="text-white font-medium">{label}</p>
-        <p className="text-sm text-slate-400">{description}</p>
+        <p className="text-black font-bold text-lg uppercase">{label}</p>
+        <p className="text-sm text-gray-600 font-medium">{description}</p>
       </div>
       <button
         onClick={onChange}
-        className={`w-12 h-6 rounded-full transition-colors relative ${
-          checked ? "bg-blue-600" : "bg-slate-700"
+        className={`w-14 h-8 border-4 border-black transition-colors relative ${
+          checked ? "bg-neo-primary" : "bg-gray-200"
         }`}
       >
         <div
-          className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
+          className={`absolute top-[-4px] left-[-4px] w-6 h-8 bg-black border-2 border-white transition-transform ${
             checked ? "translate-x-6" : "translate-x-0"
           }`}
         />
@@ -102,7 +102,6 @@ export default function Settings() {
     marketingEmails: false,
     pushNotifs: true,
     twoFactor: false,
-    darkMode: true,
   });
 
   const toggle = (key: keyof typeof settings) => {
@@ -112,18 +111,17 @@ export default function Settings() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-slate-950 text-white font-sans selection:bg-blue-500/30 flex">
+      <div className="min-h-screen bg-neo-bg text-black font-sans selection:bg-neo-primary selection:text-white flex">
         <Sidebar />
 
         <main className="flex-1 md:pl-64 min-h-screen relative overflow-hidden flex flex-col">
-          {/* Ambient Background Effects */}
-          <AmbientBackground />
-
           <div className="flex-1 overflow-y-auto p-6 md:p-12">
             <div className="max-w-4xl mx-auto space-y-8">
               <div>
-                <h1 className="text-3xl font-bold text-white">Settings</h1>
-                <p className="text-slate-400 mt-1">
+                <h1 className="text-4xl font-black uppercase text-black">
+                  Settings
+                </h1>
+                <p className="text-black font-medium mt-1 border-l-4 border-neo-primary pl-4">
                   Manage your preferences and account security
                 </p>
               </div>
@@ -134,38 +132,40 @@ export default function Settings() {
                   title="Account"
                   description="Manage your login and contact details"
                   icon={Shield}
-                  color="text-blue-400"
+                  color="text-black"
                 >
-                  <button className="w-full flex items-center justify-between p-4 rounded-xl bg-white/5 hover:bg-white/10 transition group">
+                  <button className="w-full flex items-center justify-between p-4 border-4 border-black bg-white shadow-neo-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all group">
                     <div className="flex items-center gap-4">
-                      <div className="p-2 rounded-lg bg-blue-500/20 text-blue-400">
+                      <div className="p-2 bg-neo-secondary border-2 border-black text-white">
                         <Mail className="w-5 h-5" />
                       </div>
                       <div className="text-left">
-                        <p className="text-white font-medium">Email Address</p>
-                        <p className="text-sm text-slate-400">
+                        <p className="text-black font-bold uppercase">
+                          Email Address
+                        </p>
+                        <p className="text-sm text-gray-600 font-bold">
                           jena@example.com
                         </p>
                       </div>
                     </div>
-                    <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-white transition" />
+                    <ChevronRight className="w-6 h-6 text-black group-hover:translate-x-1 transition-transform" />
                   </button>
 
-                  <button className="w-full flex items-center justify-between p-4 rounded-xl bg-white/5 hover:bg-white/10 transition group">
+                  <button className="w-full flex items-center justify-between p-4 border-4 border-black bg-white shadow-neo-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all group">
                     <div className="flex items-center gap-4">
-                      <div className="p-2 rounded-lg bg-purple-500/20 text-purple-400">
+                      <div className="p-2 bg-neo-accent border-2 border-black text-black">
                         <Lock className="w-5 h-5" />
                       </div>
                       <div className="text-left">
-                        <p className="text-white font-medium">
+                        <p className="text-black font-bold uppercase">
                           Change Password
                         </p>
-                        <p className="text-sm text-slate-400">
+                        <p className="text-sm text-gray-600 font-bold">
                           Last updated 3 months ago
                         </p>
                       </div>
                     </div>
-                    <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-white transition" />
+                    <ChevronRight className="w-6 h-6 text-black group-hover:translate-x-1 transition-transform" />
                   </button>
                 </ToggleSection>
 
@@ -174,7 +174,7 @@ export default function Settings() {
                   title="Notifications"
                   description="Choose what you want to be notified about"
                   icon={Bell}
-                  color="text-yellow-400"
+                  color="text-black"
                 >
                   <ToggleItem
                     label="Email Notifications"
@@ -201,7 +201,7 @@ export default function Settings() {
                   title="Privacy & Security"
                   description="Control your data and account security"
                   icon={Lock}
-                  color="text-green-400"
+                  color="text-black"
                 >
                   <ToggleItem
                     label="Two-Factor Authentication"
@@ -209,41 +209,26 @@ export default function Settings() {
                     checked={settings.twoFactor}
                     onChange={() => toggle("twoFactor")}
                   />
-                  <div className="pt-4 border-t border-white/5">
-                    <button className="flex items-center gap-2 text-slate-300 hover:text-white transition text-sm font-medium">
+                  <div className="pt-4 border-t-4 border-black">
+                    <button className="flex items-center gap-2 text-black hover:text-neo-primary transition text-sm font-black uppercase">
                       <Download className="w-4 h-4" />
                       Download My Data
                     </button>
                   </div>
                 </ToggleSection>
 
-                {/* Appearance */}
-                <ToggleSection
-                  title="Appearance"
-                  description="Customize the look and feel"
-                  icon={Moon}
-                  color="text-purple-400"
-                >
-                  <ToggleItem
-                    label="Dark Mode"
-                    description="Use dark theme across the application"
-                    checked={settings.darkMode}
-                    onChange={() => toggle("darkMode")}
-                  />
-                </ToggleSection>
-
                 {/* Danger Zone */}
-                <div className="bg-red-500/5 border border-red-500/20 rounded-2xl overflow-hidden">
+                <div className="bg-red-100 border-4 border-black shadow-neo overflow-hidden">
                   <div className="p-6">
-                    <h3 className="text-lg font-bold text-red-400 flex items-center gap-2 mb-2">
-                      <Trash2 className="w-5 h-5" />
+                    <h3 className="text-xl font-black uppercase text-red-600 flex items-center gap-2 mb-2">
+                      <Trash2 className="w-6 h-6" />
                       Danger Zone
                     </h3>
-                    <p className="text-sm text-red-400/70 mb-6">
+                    <p className="text-sm text-red-800 font-bold mb-6">
                       Once you delete your account, there is no going back.
                       Please be certain.
                     </p>
-                    <button className="px-4 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 text-sm font-medium transition">
+                    <button className="px-6 py-3 bg-red-500 border-4 border-black text-white font-black uppercase shadow-neo-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">
                       Delete Account
                     </button>
                   </div>

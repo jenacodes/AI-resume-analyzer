@@ -8,7 +8,7 @@ import { resumes } from "../../constants";
 import { Link, redirect } from "react-router";
 import ResumeCard from "~/components/ResumeCard";
 import Navbar from "~/components/Navbar";
-import AmbientBackground from "~/components/AmbientBackground";
+
 import { getSession } from "~/sessions";
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -35,33 +35,30 @@ export default function Home() {
       resumes.length
   );
   return (
-    <div className="min-h-screen bg-slate-950 text-white font-sans selection:bg-blue-500/30">
+    <div className="min-h-screen bg-neo-bg text-black font-sans selection:bg-neo-primary selection:text-white">
       <Sidebar />
 
       <main className="lg:pl-64 pl-0 min-h-screen relative overflow-hidden">
-        {/* Ambient Background Effects */}
-        <AmbientBackground />
-
         <Navbar />
         <div className="p-8 max-w-7xl mx-auto space-y-8">
           {/* Header Section */}
           <div className="flex flex-col md:flex-row items-center justify-between mb-8">
             <div>
-              <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-linear-to-r from-white to-slate-400">
+              <h2 className="text-4xl font-black uppercase tracking-tighter text-black">
                 Dashboard Overview
               </h2>
-              <p className="text-slate-400 mt-1 mb-3">
+              <p className="text-black font-medium mt-1 mb-3 border-l-4 border-neo-primary pl-4">
                 Welcome back! Here's how your resumes are performing.
               </p>
             </div>
 
             <div className="flex gap-3 mt-4 md:mt-0">
-              <button className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition text-sm font-medium">
+              <button className="px-6 py-3 bg-white border-4 border-black shadow-neo hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all text-black font-bold uppercase text-sm">
                 Export Report
               </button>
               <Link
                 to="/scan"
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 transition text-sm font-medium shadow-[0_0_20px_rgba(37,99,235,0.3)]"
+                className="px-6 py-3 bg-neo-primary border-4 border-black shadow-neo hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all text-white font-bold uppercase text-sm"
               >
                 + New Scan
               </Link>
@@ -111,8 +108,8 @@ export default function Home() {
             {/* Left Column - Upload & Recent */}
             <div className="lg:col-span-2 space-y-8">
               <section>
-                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                  <span className="w-1 h-6 bg-blue-500 rounded-full" />
+                <h3 className="text-2xl font-black uppercase mb-4 flex items-center gap-2">
+                  <span className="w-4 h-8 bg-neo-primary border-2 border-black" />
                   Quick Analysis
                 </h3>
                 <UploadZone />
@@ -120,19 +117,19 @@ export default function Home() {
 
               <section>
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-semibold flex items-center gap-2">
-                    <span className="w-1 h-6 bg-purple-500 rounded-full" />
+                  <h3 className="text-2xl font-black uppercase flex items-center gap-2">
+                    <span className="w-4 h-8 bg-neo-secondary border-2 border-black" />
                     Recent Scans
                   </h3>
                   <a
                     href="/resumes"
-                    className="text-sm text-blue-400 hover:text-blue-300"
+                    className="text-sm font-bold text-black uppercase hover:underline border-b-2 border-black"
                   >
                     View All
                   </a>
                 </div>
 
-                <div className="bg-slate-900/50 backdrop-blur-md rounded-2xl border border-white/5 overflow-hidden">
+                <div className="bg-white border-4 border-black shadow-neo overflow-hidden">
                   {resumes.length > 0 &&
                     resumes.map((resume) => (
                       <ResumeCard key={resume.id} resume={resume} />
@@ -143,8 +140,10 @@ export default function Home() {
 
             {/* Right Column - Insights */}
             <div className="space-y-6">
-              <div className="bg-linear-to-b from-slate-900/80 to-slate-900/40 backdrop-blur-xl rounded-2xl border border-white/10 p-6">
-                <h3 className="text-lg font-semibold mb-4">Improvement Tips</h3>
+              <div className="bg-white border-4 border-black shadow-neo p-6">
+                <h3 className="text-xl font-black uppercase mb-4">
+                  Improvement Tips
+                </h3>
                 <div className="space-y-4">
                   {[
                     "Add more quantifiable results to your work experience.",
@@ -153,27 +152,29 @@ export default function Home() {
                   ].map((tip, i) => (
                     <div
                       key={i}
-                      className="flex gap-3 p-3 rounded-xl bg-white/5 border border-white/5"
+                      className="flex gap-3 p-3 bg-neo-bg border-2 border-black"
                     >
-                      <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 mt-2 shrink-0" />
-                      <p className="text-sm text-slate-300 leading-relaxed">
+                      <div className="w-3 h-3 bg-neo-accent border-2 border-black mt-1.5 shrink-0" />
+                      <p className="text-sm text-black font-bold leading-relaxed">
                         {tip}
                       </p>
                     </div>
                   ))}
                 </div>
-                <button className="w-full mt-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-sm font-medium transition">
+                <button className="w-full mt-6 py-3 bg-black text-white border-2 border-black hover:bg-white hover:text-black hover:shadow-neo-sm transition-all text-sm font-bold uppercase">
                   View Full Report
                 </button>
               </div>
 
-              <div className="bg-linear-to-br from-blue-900/20 to-purple-900/20 backdrop-blur-xl rounded-2xl border border-white/10 p-6 relative overflow-hidden">
+              <div className="bg-neo-accent border-4 border-black shadow-neo p-6 relative overflow-hidden">
                 <div className="relative z-10">
-                  <h3 className="text-lg font-semibold mb-2">Pro Feature</h3>
-                  <p className="text-sm text-slate-400 mb-4">
+                  <h3 className="text-xl font-black uppercase mb-2">
+                    Pro Feature
+                  </h3>
+                  <p className="text-sm text-black font-bold mb-4">
                     Unlock AI Cover Letter generation based on your resume.
                   </p>
-                  <button className="w-full py-2 rounded-lg bg-linear-to-r from-blue-600 to-purple-600 text-sm font-bold shadow-lg shadow-blue-900/20 hover:shadow-blue-900/40 transition cursor-pointer">
+                  <button className="w-full py-3 bg-white border-4 border-black shadow-neo-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all text-sm font-black uppercase cursor-pointer">
                     Upgrade to Pro
                   </button>
                 </div>

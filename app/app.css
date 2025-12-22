@@ -1,15 +1,26 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-sans:
+    "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  /* Neo-Brutalist Shadows */
+  --shadow-neo: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+  --shadow-neo-lg: 8px 8px 0px 0px rgba(0, 0, 0, 1);
+  --shadow-neo-sm: 2px 2px 0px 0px rgba(0, 0, 0, 1);
+
+  /* Neo-Brutalist Colors */
+  --color-neo-bg: #fffdf5; /* Soft Cream */
+  --color-neo-primary: #2563eb; /* Electric Blue */
+  --color-neo-secondary: #db2777; /* Hot Pink */
+  --color-neo-accent: #facc15; /* Bright Yellow */
+  --color-neo-dark: #1a1a1a; /* Off-Black */
 }
 
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
-
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
-  }
+  @apply bg-neo-bg text-neo-dark antialiased;
+  /* Force light mode for this aesthetic */
+  color-scheme: light;
 }

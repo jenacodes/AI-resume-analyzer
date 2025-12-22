@@ -8,29 +8,31 @@ export function SettingsSection() {
   return (
     <div className="space-y-6">
       {/* Account Settings */}
-      <div className="bg-slate-900/50 border border-white/10 rounded-2xl overflow-hidden">
-        <div className="p-6 border-b border-white/5">
-          <h3 className="text-lg font-bold text-white flex items-center gap-2">
-            <Shield className="w-5 h-5 text-blue-400" />
+      <div className="bg-white border-4 border-black shadow-neo overflow-hidden">
+        <div className="p-6 border-b-4 border-black bg-neo-bg">
+          <h3 className="text-xl font-black uppercase text-black flex items-center gap-2">
+            <Shield className="w-6 h-6 text-black" />
             Account Preferences
           </h3>
         </div>
         <div className="p-6 space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-white font-medium">Email Notifications</p>
-              <p className="text-sm text-slate-400">
+              <p className="text-black font-bold text-lg">
+                Email Notifications
+              </p>
+              <p className="text-sm text-gray-600 font-medium">
                 Receive analysis results via email
               </p>
             </div>
             <button
               onClick={() => setEmailNotifs(!emailNotifs)}
-              className={`w-12 h-6 rounded-full transition-colors relative ${
-                emailNotifs ? "bg-blue-600" : "bg-slate-700"
+              className={`w-14 h-8 border-4 border-black transition-colors relative ${
+                emailNotifs ? "bg-neo-primary" : "bg-gray-200"
               }`}
             >
               <div
-                className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                className={`absolute top-[-4px] left-[-4px] w-6 h-8 bg-black border-2 border-white transition-transform ${
                   emailNotifs ? "translate-x-6" : "translate-x-0"
                 }`}
               />
@@ -39,19 +41,19 @@ export function SettingsSection() {
 
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-white font-medium">Marketing Emails</p>
-              <p className="text-sm text-slate-400">
+              <p className="text-black font-bold text-lg">Marketing Emails</p>
+              <p className="text-sm text-gray-600 font-medium">
                 Receive product updates and tips
               </p>
             </div>
             <button
               onClick={() => setMarketingEmails(!marketingEmails)}
-              className={`w-12 h-6 rounded-full transition-colors relative ${
-                marketingEmails ? "bg-blue-600" : "bg-slate-700"
+              className={`w-14 h-8 border-4 border-black transition-colors relative ${
+                marketingEmails ? "bg-neo-primary" : "bg-gray-200"
               }`}
             >
               <div
-                className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                className={`absolute top-[-4px] left-[-4px] w-6 h-8 bg-black border-2 border-white transition-transform ${
                   marketingEmails ? "translate-x-6" : "translate-x-0"
                 }`}
               />

@@ -6,29 +6,29 @@ export function StatsOverview() {
       label: "Total Scans",
       value: "24",
       icon: FileText,
-      color: "text-blue-400",
-      bg: "bg-blue-500/10",
+      color: "text-white",
+      bg: "bg-neo-primary",
     },
     {
       label: "Average Score",
       value: "78",
       icon: Star,
-      color: "text-purple-400",
-      bg: "bg-purple-500/10",
+      color: "text-white",
+      bg: "bg-neo-secondary",
     },
     {
       label: "Interviews",
       value: "12",
       icon: Zap,
-      color: "text-yellow-400",
-      bg: "bg-yellow-500/10",
+      color: "text-black",
+      bg: "bg-neo-accent",
     },
     {
       label: "Improvement",
       value: "+15%",
       icon: TrendingUp,
-      color: "text-green-400",
-      bg: "bg-green-500/10",
+      color: "text-black",
+      bg: "bg-green-400",
     },
   ];
 
@@ -37,17 +37,17 @@ export function StatsOverview() {
       {stats.map((stat, index) => (
         <div
           key={index}
-          className="bg-slate-900/50 border border-white/10 p-5 rounded-2xl flex flex-col items-center text-center hover:bg-white/5 transition group"
+          className="bg-white border-4 border-black shadow-neo p-5 flex flex-col items-center text-center hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-200 group"
         >
           <div
-            className={`p-3 rounded-xl ${stat.bg} mb-3 group-hover:scale-110 transition-transform duration-300`}
+            className={`p-3 border-2 border-black shadow-neo-sm ${stat.bg} mb-3 group-hover:scale-110 transition-transform duration-300`}
           >
             <stat.icon className={`w-6 h-6 ${stat.color}`} />
           </div>
-          <span className="text-2xl font-bold text-white mb-1">
+          <span className="text-3xl font-black text-black mb-1">
             {stat.value}
           </span>
-          <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">
+          <span className="text-xs text-gray-600 font-bold uppercase tracking-wider">
             {stat.label}
           </span>
         </div>
