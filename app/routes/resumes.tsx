@@ -3,19 +3,34 @@ import { useState } from "react";
 import { Sidebar } from "../components/Sidebar";
 import { ResumeGridCard } from "../components/ResumeGridCard";
 import { FilterBar } from "../components/FilterBar";
-import { resumes } from "../../constants";
+import type { AnalysisResult } from "~/services/gemini.server";
 import { Link, redirect } from "react-router";
 import { Plus, Search } from "lucide-react";
 import Navbar from "~/components/Navbar";
+import { db } from "~/db.server";
 
 import { getSession } from "~/sessions";
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader({ request, params }: Route.LoaderArgs) {
+  // 1. Check Authentication
   const session = await getSession(request.headers.get("Cookie"));
+  const userId = session.get("userId");
   if (!session.has("userId")) {
     throw redirect("/login");
   }
-  return null;
+
+  // 2. Fetch Resumes
+  const resumeData = await db.resume.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+  });
+
+  const resumes = resumeData.map((resume) => ({
+    ...resume,
+    feedback: JSON.parse(resume.analysisJson) as AnalysisResult,
+  }));
+
+  return { resumes };
 }
 
 export function meta({}: Route.MetaArgs) {
@@ -25,13 +40,14 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export default function MyResumes() {
+export default function MyResumes({ loaderData }: Route.ComponentProps) {
+  const { resumes } = loaderData;
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredResumes = resumes.filter(
     (resume) =>
-      resume.jobTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      resume.companyName.toLowerCase().includes(searchQuery.toLowerCase())
+      (resume.title || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (resume.company || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (

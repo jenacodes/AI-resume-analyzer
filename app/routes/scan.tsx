@@ -11,19 +11,9 @@ import {
 } from "react-router";
 import Navbar from "~/components/Navbar";
 import { getSession } from "~/sessions";
-import { db } from "~/db.server";
-import { uploadFile } from "~/services/storage.server";
-import { extractTextFromPdf } from "~/services/pdf.server";
-import { analyzeResume } from "~/services/gemini.server";
+import { processResumeUpload } from "~/services/scan.server";
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const session = await getSession(request.headers.get("Cookie"));
-  if (!session.has("userId")) {
-    throw redirect("/login");
-  }
-  return null;
-}
-
+//1. This runs on the server when the form is submitted
 export async function action({ request }: Route.ActionArgs) {
   // 1. Authenticate
   const session = await getSession(request.headers.get("Cookie"));
@@ -35,6 +25,7 @@ export async function action({ request }: Route.ActionArgs) {
   const file = formData.get("resume") as File;
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
+  const company = formData.get("company") as string;
 
   // 3. Validate
   if (!file || file.size === 0) {
@@ -42,31 +33,23 @@ export async function action({ request }: Route.ActionArgs) {
   }
 
   try {
-    // 4. Save File
-    const filePath = await uploadFile(file);
+    // 4. Process Upload (Shared Logic)
+    const resume = await processResumeUpload(
+      userId,
+      file,
+      title,
+      description,
+      company
+    );
 
-    // 5. Extract Text from PDF
-    const resumeText = await extractTextFromPdf(filePath);
-
-    // 6. Analyze with Gemini AI
-    const analysisResult = await analyzeResume(resumeText, title, description);
-
-    // 7. Create DB Record
-    const resume = await db.resume.create({
-      data: {
-        userId,
-        title: title || "Untitled Resume",
-        filePath,
-        analysisJson: JSON.stringify(analysisResult),
-        company: "AI Analyzed",
-      },
-    });
-
-    // 8. Redirect to the results page
+    // 5. Redirect to the results page
     return redirect(`/resume/${resume.id}`);
   } catch (error: any) {
     console.error("Scan failed:", error.message);
-    return { error: error.message || "Something went wrong during analysis." };
+    return {
+      error: error.message || "Something went wrong during analysis.",
+      values: { title, description, company },
+    };
   }
 }
 
@@ -115,8 +98,24 @@ export default function NewScan() {
                     type="text"
                     name="title"
                     id="title"
+                    defaultValue={actionData?.values?.title}
                     placeholder="e.g. Senior Frontend Developer"
                     className="w-full bg-white border-4 border-black p-4 text-black font-bold placeholder:text-gray-400 focus:outline-none focus:shadow-neo transition-all"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    htmlFor="company"
+                    className="block text-lg font-bold text-black uppercase"
+                  >
+                    Company Name
+                  </label>
+                  <input
+                    name="company"
+                    id="company"
+                    placeholder="Paste the company name here for targeted analysis..."
+                    className="w-full bg-white border-4 border-black p-4 text-black font-medium placeholder:text-gray-400 focus:outline-none focus:shadow-neo transition-all resize-none"
                   />
                 </div>
 
@@ -125,11 +124,12 @@ export default function NewScan() {
                     htmlFor="description"
                     className="block text-lg font-bold text-black uppercase"
                   >
-                    Job Description (Optional)
+                    Job Description
                   </label>
                   <textarea
                     name="description"
                     id="description"
+                    defaultValue={actionData?.values?.description}
                     rows={4}
                     placeholder="Paste the job description here for targeted analysis..."
                     className="w-full bg-white border-4 border-black p-4 text-black font-medium placeholder:text-gray-400 focus:outline-none focus:shadow-neo transition-all resize-none"

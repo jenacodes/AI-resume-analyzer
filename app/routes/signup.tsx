@@ -25,8 +25,8 @@ export function meta({}: Route.MetaArgs) {
     { name: "description", content: "Create your account" },
   ];
 }
-
 export async function action({ request }: Route.ActionArgs) {
+  //1. This runs on the server when the form is submitted (POST request)
   const formData = await request.formData();
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
@@ -35,6 +35,7 @@ export async function action({ request }: Route.ActionArgs) {
 
   const errors: Record<string, string> = {};
 
+  //2. Validate the form data
   if (!email || !email.includes("@")) {
     errors.email = "Invalid email address";
   }
@@ -51,13 +52,16 @@ export async function action({ request }: Route.ActionArgs) {
     return { errors };
   }
 
+  //3. Check if the user already exists
   const existingUser = await db.user.findUnique({ where: { email } });
   if (existingUser) {
     return { errors: { email: "User already exists with this email" } };
   }
 
+  //4. Hash the password
   const passwordHash = await bcrypt.hash(password, 10);
 
+  //5. Create the user in the database
   const user = await db.user.create({
     data: {
       email,
@@ -66,9 +70,11 @@ export async function action({ request }: Route.ActionArgs) {
     },
   });
 
+  //6. Create a session
   const session = await getSession(request.headers.get("Cookie"));
   session.set("userId", user.id);
 
+  //7. Redirect to the home page
   return redirect("/", {
     headers: {
       "Set-Cookie": await commitSession(session),

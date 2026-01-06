@@ -4,36 +4,108 @@ import { Sidebar } from "../components/Sidebar";
 import { StatsCard } from "../components/StatsCard";
 import { UploadZone } from "../components/UploadZone";
 import { Award, Briefcase, TrendingUp, Zap } from "lucide-react";
-import { resumes } from "../../constants";
-import { Link, redirect } from "react-router";
+import { Link, redirect, useSubmit, useNavigation } from "react-router";
 import ResumeCard from "~/components/ResumeCard";
 import Navbar from "~/components/Navbar";
 
 import { getSession } from "~/sessions";
+import { db } from "~/db.server";
+import type { AnalysisResult } from "~/services/gemini.server";
+import { processResumeUpload } from "~/services/scan.server";
 
 export async function loader({ request }: Route.LoaderArgs) {
+  //1. Authenticate the user
   const session = await getSession(request.headers.get("Cookie"));
-  if (!session.has("userId")) {
+  const userId = session.get("userId");
+
+  //check if no user, kick them out
+  if (!userId) {
     throw redirect("/login");
   }
-  return null;
+
+  //2. Query the database
+  const resumes = await db.resume.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+  });
+
+  // Transform Prisma data to include parsed feedback matching our UI expectations
+  const resumesWithFeedback = resumes.map((resume) => ({
+    ...resume,
+    feedback: JSON.parse(resume.analysisJson) as AnalysisResult,
+  }));
+
+  //3. Return to component
+  return { resumes: resumesWithFeedback };
+}
+
+export async function action({ request }: Route.ActionArgs) {
+  //Authenticate
+  const session = await getSession(request.headers.get("Cookie"));
+  const userId = session.get("userId");
+  if (!userId) throw redirect("/login");
+
+  //Process File
+  const formData = await request.formData();
+  const file = formData.get("resume") as File;
+
+  //Validate file
+  if (!file || file.size === 0) {
+    return { error: "Please upload a resume PDF." };
+  }
+
+  try {
+    //Process file and send to the server
+    const resume = await processResumeUpload(userId, file);
+    return redirect(`/resume/${resume.id}`);
+  } catch (error: any) {
+    return { error: error.message || "Something went wrong." };
+  }
 }
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "ResumeAI - Smart Resume Analyzer" },
+    { title: "Dashboard - ResumeAI" },
     {
       name: "description",
       content: "Analyze and optimize your resume with AI",
     },
   ];
 }
-export default function Home() {
-  // Calculate average score
-  const averageScore = Math.round(
-    resumes.reduce((acc, resume) => acc + resume.feedback.overallScore, 0) /
-      resumes.length
-  );
+export default function Home({ loaderData }: Route.ComponentProps) {
+  //1. Access the data from the loader
+  const { resumes } = loaderData;
+  const latestResume = resumes[0];
+  const submit = useSubmit();
+  const navigation = useNavigation();
+  const isAnalyzing = navigation.state === "submitting";
+
+  //
+  const handleFileAccepted = (file: File) => {
+    const formData = new FormData();
+    formData.append("resume", file);
+    submit(formData, { method: "post", encType: "multipart/form-data" });
+  };
+
+  // Calculate real average score
+  const averageScore =
+    resumes.length > 0
+      ? Math.round(
+          resumes.reduce((acc, r) => acc + (r.feedback.overallScore || 0), 0) /
+            resumes.length
+        )
+      : 0;
+
+  // Mock data for other stats (could be improved later with more complex analysis)
+  const jobMatches = resumes.length > 0 ? Math.floor(resumes.length * 1.5) : 0;
+
+  // Safe access for new fields (older scans might not have them)
+  const skillsFound = latestResume?.feedback.extractedSkills
+    ? latestResume.feedback.extractedSkills.length
+    : latestResume?.feedback.skills?.tips?.length || 0;
+
+  const marketValue = latestResume?.feedback.estimatedSalary || "-";
+
   return (
     <div className="min-h-screen bg-neo-bg text-black font-sans selection:bg-neo-primary selection:text-white">
       <Sidebar />
@@ -58,7 +130,7 @@ export default function Home() {
               </button>
               <Link
                 to="/scan"
-                className="px-6 py-3 bg-neo-primary border-4 border-black shadow-neo hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all text-white font-bold uppercase text-sm"
+                className="px-6 py-3 bg-neo-primary border-4 border-black shadow-neo hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all text-white font-bold uppercase text-sm text-center"
               >
                 + New Scan
               </Link>
@@ -69,32 +141,32 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <StatsCard
               title="Average Score"
-              value={`${averageScore}/100`}
+              value={resumes.length > 0 ? `${averageScore}/100` : "-"}
               icon={Award}
               color="blue"
-              trend="up"
-              trendValue="+5%"
+              trend={resumes.length > 0 ? "up" : "neutral"}
+              trendValue={resumes.length > 0 ? "Latest" : ""}
             />
             <StatsCard
-              title="Job Matches"
-              value="12"
-              subtitle="High fit"
+              title="Total Scans"
+              value={resumes.length.toString()}
+              subtitle="Resumes Analyzed"
               icon={Briefcase}
               color="purple"
               trend="neutral"
-              trendValue="Same"
+              trendValue="Lifetime"
             />
             <StatsCard
               title="Skills Found"
-              value="24"
+              value={skillsFound.toString()}
               icon={Zap}
               color="pink"
-              trend="up"
-              trendValue="+2"
+              trend="neutral"
+              trendValue="Latest Scan"
             />
             <StatsCard
               title="Market Value"
-              value="$120k"
+              value={marketValue}
               subtitle="Est. Salary"
               icon={TrendingUp}
               color="green"
@@ -112,7 +184,18 @@ export default function Home() {
                   <span className="w-4 h-8 bg-neo-primary border-2 border-black" />
                   Quick Analysis
                 </h3>
-                <UploadZone />
+
+                {isAnalyzing ? (
+                  <div className="flex flex-col items-center justify-center p-12 bg-white border-4 border-black shadow-neo">
+                    <div className="w-16 h-16 border-8 border-t-neo-primary border-gray-200 rounded-full animate-spin mb-4"></div>
+                    <h3 className="text-2xl font-black uppercase animate-pulse">
+                      Analyzing Resume...
+                    </h3>
+                    <p>Prepare for brutal feedback.</p>
+                  </div>
+                ) : (
+                  <UploadZone onFileAccepted={handleFileAccepted} />
+                )}
               </section>
 
               <section>
@@ -121,19 +204,26 @@ export default function Home() {
                     <span className="w-4 h-8 bg-neo-secondary border-2 border-black" />
                     Recent Scans
                   </h3>
-                  <a
-                    href="/resumes"
+                  <Link
+                    to="/resumes"
                     className="text-sm font-bold text-black uppercase hover:underline border-b-2 border-black"
                   >
                     View All
-                  </a>
+                  </Link>
                 </div>
 
                 <div className="bg-white border-4 border-black shadow-neo overflow-hidden">
-                  {resumes.length > 0 &&
-                    resumes.map((resume) => (
-                      <ResumeCard key={resume.id} resume={resume} />
-                    ))}
+                  {resumes.length > 0 ? (
+                    resumes
+                      .slice(0, 3)
+                      .map((resume) => (
+                        <ResumeCard key={resume.id} resume={resume} />
+                      ))
+                  ) : (
+                    <div className="p-8 text-center text-gray-500 font-bold">
+                      No resumes scanned yet. Start your first scan!
+                    </div>
+                  )}
                 </div>
               </section>
             </div>
@@ -145,25 +235,42 @@ export default function Home() {
                   Improvement Tips
                 </h3>
                 <div className="space-y-4">
-                  {[
-                    "Add more quantifiable results to your work experience.",
-                    "Include 'React' and 'TypeScript' in your skills section.",
-                    "Shorten your summary to 3-4 sentences.",
-                  ].map((tip, i) => (
-                    <div
-                      key={i}
-                      className="flex gap-3 p-3 bg-neo-bg border-2 border-black"
-                    >
-                      <div className="w-3 h-3 bg-neo-accent border-2 border-black mt-1.5 shrink-0" />
-                      <p className="text-sm text-black font-bold leading-relaxed">
-                        {tip}
-                      </p>
-                    </div>
-                  ))}
+                  {latestResume ? (
+                    latestResume.feedback.content.tips
+                      .filter((t) => t.type === "improve")
+                      .slice(0, 3)
+                      .map((tipItem, i) => (
+                        <div
+                          key={i}
+                          className="flex gap-3 p-3 bg-neo-bg border-2 border-black"
+                        >
+                          <div className="w-3 h-3 bg-neo-accent border-2 border-black mt-1.5 shrink-0" />
+                          <p className="text-sm text-black font-bold leading-relaxed">
+                            {tipItem.tip}
+                          </p>
+                        </div>
+                      ))
+                  ) : (
+                    <p className="text-sm text-gray-500 font-bold">
+                      Scan a resume to get personalized tips.
+                    </p>
+                  )}
                 </div>
-                <button className="w-full mt-6 py-3 bg-black text-white border-2 border-black hover:bg-white hover:text-black hover:shadow-neo-sm transition-all text-sm font-bold uppercase">
-                  View Full Report
-                </button>
+                {latestResume ? (
+                  <Link
+                    to={`/resume/${latestResume.id}`}
+                    className="w-full mt-6 py-3 block text-center bg-black text-white border-2 border-black hover:bg-white hover:text-black hover:shadow-neo-sm transition-all text-sm font-bold uppercase"
+                  >
+                    View Full Report
+                  </Link>
+                ) : (
+                  <button
+                    disabled
+                    className="w-full mt-6 py-3 bg-gray-300 text-gray-500 border-2 border-gray-400 cursor-not-allowed text-sm font-bold uppercase"
+                  >
+                    View Full Report
+                  </button>
+                )}
               </div>
 
               <div className="bg-neo-accent border-4 border-black shadow-neo p-6 relative overflow-hidden">
