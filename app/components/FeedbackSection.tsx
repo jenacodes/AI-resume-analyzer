@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { ChevronDown, CheckCircle, AlertCircle, Sparkles } from "lucide-react";
 import type { FeedbackItem } from "~/services/gemini.server";
-
 const FeedbackSection = ({
   title,
   data,

@@ -7,7 +7,7 @@ const Navbar = () => {
   const [isMobileMenu, setIsMobileMenu] = useState(false);
 
   return (
-    <header className="lg:hidden relative z-40 px-8 pt-6 max-w-7xl mx-auto space-y-8 bg-white border-b-4 border-black">
+    <header className="lg:hidden relative z-40 px-8 pt-6 max-w-7xl space-y-8 bg-white border-b-4 border-black">
       <div className="flex flex-col lg:flex-row justify-between lg:items-end">
         <div className="lg:hidden flex justify-between items-center mb-4">
           <div className="flex items-center gap-3">

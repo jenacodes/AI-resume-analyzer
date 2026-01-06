@@ -1,7 +1,13 @@
-import { resume } from "react-dom/server";
 import { Link } from "react-router";
+import type { Resume } from "@prisma/client";
+import type { AnalysisResult } from "~/services/gemini.server";
 
-const ResumeCard = ({ resume }: { resume: Resume }) => {
+// Define the type expected by the component (Prisma Resume + parsed feedback)
+interface ResumeWithFeedback extends Resume {
+  feedback: AnalysisResult;
+}
+
+const ResumeCard = ({ resume }: { resume: ResumeWithFeedback }) => {
   return (
     <Link to={`/resume/${resume.id}`}>
       <div
@@ -14,10 +20,10 @@ const ResumeCard = ({ resume }: { resume: Resume }) => {
           </div>
           <div>
             <h2 className="text-black font-black uppercase text-lg leading-tight">
-              {resume.companyName}
+              {resume.company || "Company Not Set"}
             </h2>
             <h4 className="font-bold text-gray-700 group-hover:text-black transition">
-              {resume.jobTitle}
+              {resume.title}
             </h4>
           </div>
         </div>

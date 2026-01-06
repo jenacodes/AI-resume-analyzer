@@ -2,40 +2,53 @@ import { Upload, FileText, Sparkles } from "lucide-react";
 import React, { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 
-export function UploadZone({ name }: { name?: string }) {
+export function UploadZone({
+  name,
+  onFileAccepted,
+}: {
+  name?: string;
+  onFileAccepted?: (file: File) => void;
+}) {
   // 1. Track the selected file
-  // const [file, setFile] = React.useState<File | null>(null);
 
   const [file, setFile] = React.useState<File | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
-  const onDrop = useCallback((acceptedFiles: File[], fileRejections: any[]) => {
-    // 1. Handling the Rejections First
-    if (fileRejections.length > 0) {
-      const rejection = fileRejections[0];
-      const code = rejection.errors[0].code;
+  const onDrop = useCallback(
+    (acceptedFiles: File[], fileRejections: any[]) => {
+      // . Handling the Rejections First
+      if (fileRejections.length > 0) {
+        const rejection = fileRejections[0];
+        const code = rejection.errors[0].code;
 
-      if (code === "file-invalid-type") {
-        setError("Only PDF files are allowed.");
-      } else {
-        setError("Something went wrong with that file.");
+        if (code === "file-invalid-type") {
+          setError("Only PDF files are allowed.");
+        } else {
+          setError("Something went wrong with that file.");
+        }
+        return;
       }
-      return;
-    }
 
-    // 2. Handling Success
-    // Check if any files were dropped
-    if (acceptedFiles.length > 0) {
-      // I only want the first file (set maxFiles: 1)
-      const selectedFile = acceptedFiles[0];
-      console.log(selectedFile); // <-
-      // Do something with the file
-      setFile(selectedFile);
-      // Clear any previous errors
-      setError(null);
-      console.log("File dropped:", selectedFile.name);
-    }
-  }, []);
+      // 2. Handling Success
+      // Check if any files were dropped
+      if (acceptedFiles.length > 0) {
+        // I only want the first file (set maxFiles: 1)
+        const selectedFile = acceptedFiles[0];
+        console.log(selectedFile); // <-
+        // Do something with the file
+        setFile(selectedFile);
+        // Clear any previous errors
+        setError(null);
+        console.log("File dropped:", selectedFile.name);
+
+        // Trigger callback if provided
+        if (onFileAccepted) {
+          onFileAccepted(selectedFile);
+        }
+      }
+    },
+    [onFileAccepted]
+  );
 
   const { getRootProps, getInputProps, isDragActive, isDragReject } =
     useDropzone({
@@ -97,7 +110,7 @@ export function UploadZone({ name }: { name?: string }) {
                 ) : (
                   <div className="text-black font-medium text-sm max-w-xs mx-auto space-y-1">
                     <p>Drag & drop PDF or click to browse.</p>
-                    <div className="flex items-center justify-center gap-1 text-xs font-bold bg-neo-accent text-black px-2 py-0.5 border-2 border-black inline-block transform -rotate-2">
+                    <div className="flex items-center justify-center gap-1 text-xs font-bold bg-neo-accent text-black px-2 py-0.5 border-2 border-black transform -rotate-2">
                       <Sparkles className="w-3 h-3" /> AI READY
                     </div>
                   </div>

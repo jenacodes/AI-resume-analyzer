@@ -83,7 +83,7 @@ export function ScoreChart({
           />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center flex-col">
-          <span className={`text-2xl font-bold text-white`}>{progress}%</span>
+          <span className={`text-2xl font-bold text-black`}>{progress}%</span>
         </div>
       </div>
       <span className="text-sm font-medium text-slate-400">{label}</span>
