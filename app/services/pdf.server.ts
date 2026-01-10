@@ -9,17 +9,10 @@ const require = createRequire(import.meta.url);
 // this will be a function, not a weird object anymore
 const pdf = require("pdf-parse");
 
-export async function extractTextFromPdf(filePath: string): Promise<string> {
+export async function extractTextFromBuffer(buffer: Buffer): Promise<string> {
   try {
-    const relativePath = filePath.startsWith("/")
-      ? filePath.slice(1)
-      : filePath;
-    const absolutePath = path.join(process.cwd(), "public", relativePath);
-
-    const dataBuffer = await fs.readFile(absolutePath);
-
     // 3. Use the library
-    const data = await pdf(dataBuffer);
+    const data = await pdf(buffer);
 
     // Check if text exists and isn't just whitespace sending to the AI
     if (!data.text || data.text.trim().length === 0) {
@@ -28,15 +21,25 @@ export async function extractTextFromPdf(filePath: string): Promise<string> {
         "This PDF contains no readable text. It might be a scanned image."
       );
     }
-    // fs.writeFile("resume.txt", data.text);
     return data.text;
   } catch (error: any) {
     console.error("Error extracting text from PDF:", error);
-    // so the frontend gets the specific message.
-    if (error.message.includes("scanned image")) {
-      throw error;
-    }
-    console.log(`error: ${error}`);
+    if (error.message.includes("scanned image")) throw error;
     throw new Error("Failed to extract text from PDF");
+  }
+}
+
+export async function extractTextFromPdf(filePath: string): Promise<string> {
+  try {
+    const relativePath = filePath.startsWith("/")
+      ? filePath.slice(1)
+      : filePath;
+    const absolutePath = path.join(process.cwd(), "public", relativePath);
+
+    const dataBuffer = await fs.readFile(absolutePath);
+    return extractTextFromBuffer(dataBuffer);
+  } catch (error: any) {
+    console.error("Error reading PDF file:", error);
+    throw error;
   }
 }

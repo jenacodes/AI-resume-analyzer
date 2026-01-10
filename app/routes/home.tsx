@@ -4,7 +4,13 @@ import { Sidebar } from "../components/Sidebar";
 import { StatsCard } from "../components/StatsCard";
 import { UploadZone } from "../components/UploadZone";
 import { Award, Briefcase, TrendingUp, Zap } from "lucide-react";
-import { Link, redirect, useSubmit, useNavigation } from "react-router";
+import {
+  Link,
+  redirect,
+  useSubmit,
+  useNavigation,
+  useActionData,
+} from "react-router";
 import ResumeCard from "~/components/ResumeCard";
 import Navbar from "~/components/Navbar";
 
@@ -47,18 +53,23 @@ export async function action({ request }: Route.ActionArgs) {
 
   //Process File
   const formData = await request.formData();
-  const file = formData.get("resume") as File;
+  const fileUrl = formData.get("fileUrl") as string;
+
+  console.log("Home Action received fileUrl:", fileUrl);
 
   //Validate file
-  if (!file || file.size === 0) {
+  if (!fileUrl || fileUrl === "undefined") {
+    console.error("File URL is missing or undefined");
     return { error: "Please upload a resume PDF." };
   }
 
   try {
     //Process file and send to the server
-    const resume = await processResumeUpload(userId, file);
+    // Note: processResumeUpload will be updated to accept string URL
+    const resume = await processResumeUpload(userId, fileUrl as any);
     return redirect(`/resume/${resume.id}`);
   } catch (error: any) {
+    console.error("Home Action Error:", error);
     return { error: error.message || "Something went wrong." };
   }
 }
@@ -78,13 +89,14 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   const latestResume = resumes[0];
   const submit = useSubmit();
   const navigation = useNavigation();
+  const actionData = useActionData<typeof action>(); // Add this
   const isAnalyzing = navigation.state === "submitting";
 
-  //
-  const handleFileAccepted = (file: File) => {
+  //2. Submit the form data
+  const handleFileAccepted = (fileUrl: string) => {
     const formData = new FormData();
-    formData.append("resume", file);
-    submit(formData, { method: "post", encType: "multipart/form-data" });
+    formData.append("fileUrl", fileUrl);
+    submit(formData, { method: "post" });
   };
 
   // Calculate real average score
@@ -194,7 +206,14 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                     <p>Prepare for brutal feedback.</p>
                   </div>
                 ) : (
-                  <UploadZone onFileAccepted={handleFileAccepted} />
+                  <>
+                    <UploadZone onFileAccepted={handleFileAccepted} />
+                    {actionData?.error && (
+                      <div className="mt-4 bg-red-500 text-white p-4 border-4 border-black shadow-neo font-bold text-center animate-bounce">
+                        {actionData.error}
+                      </div>
+                    )}
+                  </>
                 )}
               </section>
 

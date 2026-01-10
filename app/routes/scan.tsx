@@ -12,6 +12,7 @@ import {
 import Navbar from "~/components/Navbar";
 import { getSession } from "~/sessions";
 import { processResumeUpload } from "~/services/scan.server";
+import { useState } from "react";
 
 //1. This runs on the server when the form is submitted
 export async function action({ request }: Route.ActionArgs) {
@@ -22,13 +23,14 @@ export async function action({ request }: Route.ActionArgs) {
 
   // 2. Get Data
   const formData = await request.formData();
-  const file = formData.get("resume") as File;
+  // We now receive a fileUrl string, not a File object
+  const fileUrl = formData.get("fileUrl") as string;
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
   const company = formData.get("company") as string;
 
   // 3. Validate
-  if (!file || file.size === 0) {
+  if (!fileUrl) {
     return { error: "Please upload a resume PDF." };
   }
 
@@ -36,7 +38,7 @@ export async function action({ request }: Route.ActionArgs) {
     // 4. Process Upload (Shared Logic)
     const resume = await processResumeUpload(
       userId,
-      file,
+      fileUrl as any, // Processing service updated to accept string
       title,
       description,
       company
@@ -64,6 +66,7 @@ export default function NewScan() {
   const navigation = useNavigation();
   const actionData = useActionData<typeof action>();
   const isSubmitting = navigation.state === "submitting";
+  const [fileUrl, setFileUrl] = useState<string>("");
 
   return (
     <div className="flex h-screen bg-neo-bg overflow-hidden">
@@ -71,7 +74,7 @@ export default function NewScan() {
       <div className="flex-1 flex flex-col min-w-0">
         <Navbar />
         <main className="flex-1 overflow-y-auto p-4 md:p-8">
-          <div className="max-w-5xl mx-auto space-y-8">
+          <div className="mx-auto space-y-8 lg:pl-64">
             <div className="space-y-2">
               <h1 className="text-4xl md:text-5xl font-black text-black uppercase tracking-tighter">
                 Scan Resume
@@ -83,9 +86,11 @@ export default function NewScan() {
 
             <Form
               method="post"
-              encType="multipart/form-data"
+              // Removed encType="multipart/form-data" as we are sending JSON-like data now
               className="space-y-8"
             >
+              <input type="hidden" name="fileUrl" value={fileUrl} />
+
               <div className="bg-white border-4 border-black shadow-neo p-6 md:p-8 space-y-6">
                 <div className="space-y-2">
                   <label
@@ -140,13 +145,22 @@ export default function NewScan() {
                   <label className="block text-lg font-bold text-black uppercase">
                     Upload PDF
                   </label>
-                  <UploadZone name="resume" />
+                  <UploadZone
+                    // No name prop to avoid submitting the File object
+                    onFileAccepted={(url) => setFileUrl(url)}
+                  />
+                  {/* Visually show if file is staged for analysis */}
+                  {fileUrl && (
+                    <p className="text-sm font-bold text-green-600 uppercase">
+                      File Ready for Analysis
+                    </p>
+                  )}
                 </div>
 
                 <div className="pt-4">
                   <button
                     type="submit"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !fileUrl}
                     className="w-full bg-neo-primary text-white text-xl font-black uppercase py-4 border-4 border-black shadow-neo hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none active:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSubmitting ? "Analyzing..." : "Start Analysis"}

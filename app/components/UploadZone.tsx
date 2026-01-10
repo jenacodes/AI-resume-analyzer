@@ -1,62 +1,68 @@
-import { Upload, FileText, Sparkles } from "lucide-react";
+import { Upload, FileText, Sparkles, Loader2 } from "lucide-react";
 import React, { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
+import { useUploadThing } from "~/utils/uploadthing";
 
 export function UploadZone({
   name,
   onFileAccepted,
 }: {
   name?: string;
-  onFileAccepted?: (file: File) => void;
+  onFileAccepted?: (fileUrl: string) => void;
 }) {
   // 1. Track the selected file
-
   const [file, setFile] = React.useState<File | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
-  const onDrop = useCallback(
-    (acceptedFiles: File[], fileRejections: any[]) => {
-      // . Handling the Rejections First
-      if (fileRejections.length > 0) {
-        const rejection = fileRejections[0];
-        const code = rejection.errors[0].code;
-
-        if (code === "file-invalid-type") {
-          setError("Only PDF files are allowed.");
-        } else {
-          setError("Something went wrong with that file.");
-        }
-        return;
-      }
-
-      // 2. Handling Success
-      // Check if any files were dropped
-      if (acceptedFiles.length > 0) {
-        // I only want the first file (set maxFiles: 1)
-        const selectedFile = acceptedFiles[0];
-        console.log(selectedFile); // <-
-        // Do something with the file
-        setFile(selectedFile);
-        // Clear any previous errors
-        setError(null);
-        console.log("File dropped:", selectedFile.name);
-
+  // Hook into UploadThing
+  const { startUpload, isUploading } = useUploadThing("resumeUploader", {
+    onClientUploadComplete: (res: any) => {
+      console.log("Files: ", res);
+      if (res && res[0]) {
         // Trigger callback if provided
         if (onFileAccepted) {
-          onFileAccepted(selectedFile);
+          onFileAccepted(res[0].url);
         }
       }
     },
-    [onFileAccepted]
+    onUploadError: (error: Error) => {
+      setError(`Upload failed: ${error.message}`);
+      setFile(null); // Reset on error
+    },
+  });
+
+  // 2. Handle file drop
+  const onDrop = useCallback(
+    (acceptedFiles: File[], fileRejections: any[]) => {
+      if (fileRejections.length > 0) {
+        const rejection = fileRejections[0];
+        const code = rejection.errors[0].code;
+        if (code === "file-invalid-type")
+          setError("Only PDF files are allowed.");
+        else setError("Something went wrong with that file.");
+        return;
+      }
+
+      // 3. Handle file selection
+      if (acceptedFiles.length > 0) {
+        const selectedFile = acceptedFiles[0];
+        setFile(selectedFile);
+        setError(null);
+
+        // 4. Start upload immediately
+        startUpload([selectedFile]);
+      }
+    },
+    [startUpload]
   );
 
+  // 5. Handle dropzone
   const { getRootProps, getInputProps, isDragActive, isDragReject } =
     useDropzone({
       onDrop,
-      accept: {
-        "application/pdf": [".pdf"], // Only accept PDFs
-      },
-      maxFiles: 1, // Only allow one file at a time
+      accept: { "application/pdf": [".pdf"] },
+      maxFiles: 1,
+      disabled: isUploading,
     });
 
   return (
@@ -87,10 +93,18 @@ export function UploadZone({
                 <p className="text-black font-mono text-sm">
                   {(file.size / 1024 / 1024).toFixed(2)} MB
                 </p>
+                {isUploading && (
+                  <div className="flex items-center justify-center gap-2 text-neo-primary font-bold animate-pulse">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Uploading...
+                  </div>
+                )}
               </div>
-              <p className="text-blue-600 font-bold text-sm hover:underline mt-2 uppercase">
-                Click to replace
-              </p>
+              {!isUploading && (
+                <p className="text-blue-600 font-bold text-sm hover:underline mt-2 uppercase">
+                  Click to replace
+                </p>
+              )}
             </>
           ) : (
             // State: No File (Default)

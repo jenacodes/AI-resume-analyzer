@@ -30,7 +30,7 @@ export default function Profile() {
       <div className="min-h-screen bg-neo-bg text-black font-sans selection:bg-neo-primary selection:text-white flex">
         <Sidebar />
 
-        <main className="flex-1 md:pl-64 min-h-screen relative overflow-hidden flex flex-col">
+        <main className="flex-1 lg:pl-64 min-h-screen relative overflow-hidden flex flex-col">
           <div className="flex-1 overflow-y-auto p-6 md:p-12">
             <div className="max-w-5xl mx-auto space-y-8">
               <ProfileHeader />

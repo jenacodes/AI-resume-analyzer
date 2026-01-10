@@ -1,87 +1,79 @@
-# Welcome to React Router!
+# AI Resume Analyzer
 
-A modern, production-ready template for building full-stack React applications using React Router.
+A powerful, AI-driven application that analyzes resumes against job descriptions to provide detailed feedback, scoring, and improvement tips. Built with the latest web technologies including React Router v7 and Gemini 2.5 Flash.
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+## 🚀 Features
 
-## Features
+- **AI-Powered Analysis**: Utilizes Google's Gemini 2.5 Flash model to deeply analyze resumes.
+- **Detailed Scoring**: Provides an overall score and breakdowns for ATS compatibility, Content, Structure, and Skills.
+- **Actionable Feedback**: Offers specific "Good" and "Improve" tips for each section.
+- **PDF Parsing**: Precise text extraction from PDF resumes using `pdf-parse`.
+- **User Authentication**: Secure login and signup to save your analysis history.
+- **Resume History**: View past analyses and track your improvements over time.
+- **Modern UI**: Clean, responsive interface built with Tailwind CSS v4.
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+## � Screenshots
 
-## Getting Started
+<!-- Add your screenshots here. Example: -->
+<!-- ![Dashboard](/public/dashboard.png) -->
+<!-- ![Analysis](/public/analysis.png) -->
+
+_Place your application screenshots here to showcase the UI._
+
+## �🛠️ Tech Stack
+
+- **Framework**: [React Router v7](https://reactrouter.com/)
+- **Frontend**: React 19, Tailwind CSS v4
+- **Backend**: Node.js, Prisma ORM
+- **Database**: SQLite (default)
+- **AI**: Google Generative AI (Gemini 2.5 Flash)
+- **Authentication**: Bcryptjs (Custom implementation)
+
+## 🏁 Getting Started
+
+### Prerequisites
+
+- Node.js (v20 or later recommended)
+- A Google Cloud API Key with access to Gemini API.
 
 ### Installation
 
-Install the dependencies:
+1. **Clone the repository**
 
-```bash
-npm install
-```
+   ```bash
+   git clone <repository-url>
+   cd AI-resume-analyzer
+   ```
 
-### Development
+2. **Install dependencies**
 
-Start the development server with HMR:
+   ```bash
+   npm install
+   ```
 
-```bash
-npm run dev
-```
+3. **Configure Environment Variables**
+   Create a `.env` file in the root directory and add the following:
 
-Your application will be available at `http://localhost:5173`.
+   ```env
+   DATABASE_URL="file:./dev.db"
+   GEMINI_API_KEY="your_gemini_api_key_here"
+   SESSION_SECRET="your_super_secret_session_key"
+   ```
 
-## Building for Production
+4. **Setup Database**
+   Initialize the SQLite database with Prisma:
 
-Create a production build:
+   ```bash
+   npx prisma db push
+   ```
 
-```bash
-npm run build
-```
+5. **Run the Application**
+   Start the development server:
+   ```bash
+   npm run dev
+   ```
+   The app will be available at [http://localhost:5173](http://localhost:5173).
 
-## Deployment
+## 📄 License
 
-### Docker Deployment
-
-To build and run using Docker:
-
-```bash
-docker build -t my-app .
-
-# Run the container
-docker run -p 3000:3000 my-app
-```
-
-The containerized application can be deployed to any platform that supports Docker, including:
-
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
-
-### DIY Deployment
-
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
-```
-
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
-
----
-
-Built with ❤️ using React Router.
+This project is licensed under the MIT License.

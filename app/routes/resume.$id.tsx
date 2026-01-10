@@ -29,6 +29,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   // Parse the JSON string back to object
   const feedback = JSON.parse(resume.analysisJson) as AnalysisResult;
+
   return { resume, feedback };
 }
 
