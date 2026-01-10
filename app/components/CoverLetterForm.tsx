@@ -21,15 +21,15 @@ export function CoverLetterForm({
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <label className="text-sm font-medium text-slate-300 flex items-center gap-2">
-          <FileText className="w-4 h-4" />
+        <label className="text-sm font-bold text-black uppercase flex items-center gap-2">
+          <FileText className="w-5 h-5" />
           Select Resume
         </label>
         <div className="relative">
           <select
             value={selectedResumeId}
             onChange={(e) => setSelectedResumeId(e.target.value)}
-            className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white appearance-none focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition"
+            className="w-full bg-white border-4 border-black p-3 text-black font-bold appearance-none focus:outline-none focus:shadow-neo transition-all"
           >
             <option value="" disabled>
               Choose a resume...
@@ -40,7 +40,7 @@ export function CoverLetterForm({
               </option>
             ))}
           </select>
-          <div className="absolute right-4 top-3.5 pointer-events-none text-slate-500">
+          <div className="absolute right-4 top-4 pointer-events-none text-black">
             <svg
               className="w-4 h-4"
               fill="none"
@@ -50,7 +50,7 @@ export function CoverLetterForm({
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth={2}
+                strokeWidth={3}
                 d="M19 9l-7 7-7-7"
               />
             </svg>
@@ -59,8 +59,8 @@ export function CoverLetterForm({
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium text-slate-300 flex items-center gap-2">
-          <Briefcase className="w-4 h-4" />
+        <label className="text-sm font-bold text-black uppercase flex items-center gap-2">
+          <Briefcase className="w-5 h-5" />
           Job Description
         </label>
         <textarea
@@ -68,23 +68,23 @@ export function CoverLetterForm({
           onChange={(e) => setJobDescription(e.target.value)}
           placeholder="Paste the job description here..."
           rows={10}
-          className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition resize-none"
+          className="w-full bg-white border-4 border-black p-3 text-black font-bold placeholder:text-gray-400 focus:outline-none focus:shadow-neo transition-all resize-none"
         />
       </div>
 
       <button
         onClick={onGenerate}
         disabled={isGenerating || !selectedResumeId || !jobDescription}
-        className="w-full py-4 rounded-xl bg-linear-to-r from-blue-600 to-purple-600 text-white font-bold text-lg shadow-[0_0_30px_rgba(79,70,229,0.3)] hover:shadow-[0_0_50px_rgba(79,70,229,0.5)] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-3 group"
+        className="w-full py-4 bg-neo-primary border-4 border-black shadow-neo hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:hover:shadow-neo transition-all text-white font-black uppercase text-lg flex items-center justify-center gap-3 group"
       >
         {isGenerating ? (
           <>
-            <Sparkles className="w-5 h-5 animate-spin" />
+            <Sparkles className="w-6 h-6 animate-spin" />
             Generating...
           </>
         ) : (
           <>
-            <Sparkles className="w-5 h-5" />
+            <Sparkles className="w-6 h-6" />
             Generate Cover Letter
           </>
         )}

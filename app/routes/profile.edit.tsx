@@ -3,7 +3,7 @@ import { Sidebar } from "../components/Sidebar";
 import { ArrowLeft, Upload, Save, X } from "lucide-react";
 import { Link, redirect } from "react-router";
 import { useState } from "react";
-import AmbientBackground from "~/components/AmbientBackground";
+
 import { getSession } from "~/sessions";
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -36,28 +36,25 @@ export default function EditProfile() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white font-sans selection:bg-blue-500/30 flex">
+    <div className="min-h-screen bg-neo-bg text-black font-sans selection:bg-neo-primary selection:text-white flex">
       <Sidebar />
 
       <main className="flex-1 md:pl-64 min-h-screen relative overflow-hidden flex flex-col">
-        {/* Ambient Background Effects */}
-        <AmbientBackground />
-
         <div className="flex-1 overflow-y-auto p-6 md:p-12">
           <div className="max-w-3xl mx-auto space-y-8">
             {/* Header */}
             <div className="flex items-center gap-4">
               <Link
                 to="/profile"
-                className="p-2 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition"
+                className="p-2 bg-white border-2 border-black shadow-neo-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all text-black"
               >
                 <ArrowLeft className="w-5 h-5" />
               </Link>
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-white">
+                <h1 className="text-3xl md:text-4xl font-black uppercase text-black">
                   Edit Profile
                 </h1>
-                <p className="text-slate-400 text-sm mt-1">
+                <p className="text-black font-medium mt-1 border-l-4 border-neo-primary pl-4">
                   Update your personal information
                 </p>
               </div>
@@ -66,17 +63,17 @@ export default function EditProfile() {
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Avatar Upload */}
-              <div className="bg-slate-900/50 border border-white/10 rounded-2xl p-6 md:p-8">
-                <h3 className="text-lg font-bold text-white mb-6">
+              <div className="bg-white border-4 border-black shadow-neo p-6 md:p-8">
+                <h3 className="text-xl font-black uppercase text-black mb-6">
                   Profile Photo
                 </h3>
                 <div className="flex flex-col md:flex-row items-center gap-6">
                   <div className="relative group">
-                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-full p-1 bg-linear-to-br from-blue-500 to-purple-600">
+                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-full p-1 bg-neo-primary border-4 border-black">
                       <img
                         src="/images/jena.png"
                         alt="Profile"
-                        className="w-full h-full rounded-full object-cover border-4 border-slate-900"
+                        className="w-full h-full rounded-full object-cover border-2 border-black"
                       />
                     </div>
                     <button
@@ -89,11 +86,11 @@ export default function EditProfile() {
                   <div className="text-center md:text-left">
                     <button
                       type="button"
-                      className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition mb-2"
+                      className="px-6 py-3 bg-neo-secondary border-4 border-black shadow-neo-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all text-white font-bold uppercase mb-2"
                     >
                       Upload New Photo
                     </button>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs font-bold text-gray-600 uppercase">
                       JPG, PNG or GIF. Max size 2MB.
                     </p>
                   </div>
@@ -101,14 +98,14 @@ export default function EditProfile() {
               </div>
 
               {/* Personal Information */}
-              <div className="bg-slate-900/50 border border-white/10 rounded-2xl p-6 md:p-8 space-y-6">
-                <h3 className="text-lg font-bold text-white">
+              <div className="bg-white border-4 border-black shadow-neo p-6 md:p-8 space-y-6">
+                <h3 className="text-xl font-black uppercase text-black">
                   Personal Information
                 </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">
+                    <label className="block text-sm font-bold text-black uppercase mb-2">
                       Full Name
                     </label>
                     <input
@@ -117,13 +114,13 @@ export default function EditProfile() {
                       onChange={(e) =>
                         setFormData({ ...formData, name: e.target.value })
                       }
-                      className="w-full bg-slate-800/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition"
+                      className="w-full bg-white border-4 border-black p-3 text-black font-bold placeholder:text-gray-400 focus:outline-none focus:shadow-neo transition-all"
                       placeholder="Enter your name"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">
+                    <label className="block text-sm font-bold text-black uppercase mb-2">
                       Email Address
                     </label>
                     <input
@@ -132,14 +129,14 @@ export default function EditProfile() {
                       onChange={(e) =>
                         setFormData({ ...formData, email: e.target.value })
                       }
-                      className="w-full bg-slate-800/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition"
+                      className="w-full bg-white border-4 border-black p-3 text-black font-bold placeholder:text-gray-400 focus:outline-none focus:shadow-neo transition-all"
                       placeholder="Enter your email"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                  <label className="block text-sm font-bold text-black uppercase mb-2">
                     Bio
                   </label>
                   <textarea
@@ -148,13 +145,13 @@ export default function EditProfile() {
                       setFormData({ ...formData, bio: e.target.value })
                     }
                     rows={4}
-                    className="w-full bg-slate-800/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition resize-none"
+                    className="w-full bg-white border-4 border-black p-3 text-black font-bold placeholder:text-gray-400 focus:outline-none focus:shadow-neo transition-all resize-none"
                     placeholder="Tell us about yourself"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                  <label className="block text-sm font-bold text-black uppercase mb-2">
                     Location
                   </label>
                   <input
@@ -163,7 +160,7 @@ export default function EditProfile() {
                     onChange={(e) =>
                       setFormData({ ...formData, location: e.target.value })
                     }
-                    className="w-full bg-slate-800/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition"
+                    className="w-full bg-white border-4 border-black p-3 text-black font-bold placeholder:text-gray-400 focus:outline-none focus:shadow-neo transition-all"
                     placeholder="City, Country"
                   />
                 </div>
@@ -173,16 +170,16 @@ export default function EditProfile() {
               <div className="flex flex-col-reverse md:flex-row gap-4 justify-end">
                 <Link
                   to="/profile"
-                  className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium transition"
+                  className="flex items-center justify-center gap-2 px-6 py-3 bg-white border-4 border-black shadow-neo hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all text-black font-bold uppercase"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-5 h-5" />
                   Cancel
                 </Link>
                 <button
                   type="submit"
-                  className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium transition shadow-[0_0_20px_rgba(37,99,235,0.3)]"
+                  className="flex items-center justify-center gap-2 px-6 py-3 bg-neo-primary border-4 border-black shadow-neo hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all text-white font-bold uppercase"
                 >
-                  <Save className="w-4 h-4" />
+                  <Save className="w-5 h-5" />
                   Save Changes
                 </button>
               </div>

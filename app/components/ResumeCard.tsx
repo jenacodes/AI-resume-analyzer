@@ -1,35 +1,42 @@
-import { resume } from "react-dom/server";
 import { Link } from "react-router";
+import type { Resume } from "@prisma/client";
+import type { AnalysisResult } from "~/services/gemini.server";
 
-const ResumeCard = ({ resume }: { resume: Resume }) => {
+// Define the type expected by the component (Prisma Resume + parsed feedback)
+interface ResumeWithFeedback extends Resume {
+  feedback: AnalysisResult;
+}
+
+const ResumeCard = ({ resume }: { resume: ResumeWithFeedback }) => {
   return (
     <Link to={`/resume/${resume.id}`}>
       <div
         key={resume.id}
-        className="flex items-center justify-between p-4 border-b border-white/5 last:border-0 hover:bg-white/5 transition cursor-pointer group"
+        className="flex items-center justify-between p-4 border-b-4 border-black last:border-0 hover:bg-neo-accent transition-colors cursor-pointer group"
       >
         <div className="flex items-center gap-4">
-          <div className="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-white transition">
-            <FileText className="w-5 h-5" />
+          <div className="w-12 h-12 border-2 border-black bg-neo-primary flex items-center justify-center shadow-neo-sm group-hover:translate-x-[2px] group-hover:translate-y-[2px] group-hover:shadow-none transition-all">
+            <FileText className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h2 className="text-white font-bold wrap-break-word">
-              {resume.companyName}
+            <h2 className="text-black font-black uppercase text-lg leading-tight">
+              {resume.company || "Company Not Set"}
             </h2>
-            <h4 className="font-light text-white group-hover:text-blue-300 transition">
-              {resume.jobTitle}
+            <h4 className="font-bold text-gray-700 group-hover:text-black transition">
+              {resume.title}
             </h4>
-            <p className="text-xs text-slate-500"></p>
           </div>
         </div>
         <div className="flex items-center gap-4">
           <div className="text-right">
-            <span className="block text-sm font-bold text-emerald-400">
+            <span className="block text-xl font-black text-black">
               {resume.feedback.overallScore}%
             </span>
-            <span className="text-xs text-slate-500">Match Score</span>
+            <span className="text-xs font-bold text-gray-600 uppercase">
+              Match Score
+            </span>
           </div>
-          <div className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 transition">
+          <div className="w-10 h-10 border-2 border-black bg-white flex items-center justify-center group-hover:bg-black group-hover:text-white transition-colors shadow-neo-sm">
             →
           </div>
         </div>

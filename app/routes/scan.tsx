@@ -1,7 +1,7 @@
 import type { Route } from "./+types/scan";
 import { Sidebar } from "../components/Sidebar";
 import { UploadZone } from "../components/UploadZone";
-import { ArrowLeft, Sparkles, Briefcase, FileText } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import {
   Link,
   redirect,
@@ -10,21 +10,11 @@ import {
   useActionData,
 } from "react-router";
 import Navbar from "~/components/Navbar";
-import AmbientBackground from "~/components/AmbientBackground";
 import { getSession } from "~/sessions";
-import { db } from "~/db.server";
-import { uploadFile } from "~/services/storage.server";
-import { extractTextFromPdf } from "~/services/pdf.server";
-import { analyzeResume } from "~/services/gemini.server";
+import { processResumeUpload } from "~/services/scan.server";
+import { useState } from "react";
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const session = await getSession(request.headers.get("Cookie"));
-  if (!session.has("userId")) {
-    throw redirect("/login");
-  }
-  return null;
-}
-
+//1. This runs on the server when the form is submitted
 export async function action({ request }: Route.ActionArgs) {
   // 1. Authenticate
   const session = await getSession(request.headers.get("Cookie"));
@@ -33,41 +23,35 @@ export async function action({ request }: Route.ActionArgs) {
 
   // 2. Get Data
   const formData = await request.formData();
-  const file = formData.get("resume") as File;
+  // We now receive a fileUrl string, not a File object
+  const fileUrl = formData.get("fileUrl") as string;
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
+  const company = formData.get("company") as string;
 
   // 3. Validate
-  if (!file || file.size === 0) {
+  if (!fileUrl) {
     return { error: "Please upload a resume PDF." };
   }
 
   try {
-    // 4. Save File
-    const filePath = await uploadFile(file);
+    // 4. Process Upload (Shared Logic)
+    const resume = await processResumeUpload(
+      userId,
+      fileUrl as any, // Processing service updated to accept string
+      title,
+      description,
+      company
+    );
 
-    // 5. Extract Text from PDF
-    const resumeText = await extractTextFromPdf(filePath);
-
-    // 6. Analyze with Gemini AI
-    const analysisResult = await analyzeResume(resumeText, title, description);
-
-    // 7. Create DB Record
-    const resume = await db.resume.create({
-      data: {
-        userId,
-        title: title || "Untitled Resume",
-        filePath,
-        analysisJson: JSON.stringify(analysisResult),
-        company: "AI Analyzed", // We could extract this too, but for now static
-      },
-    });
-
-    // 8. Redirect to the results page
+    // 5. Redirect to the results page
     return redirect(`/resume/${resume.id}`);
   } catch (error: any) {
     console.error("Scan failed:", error.message);
-    return { error: error.message || "Something went wrong during analysis." };
+    return {
+      error: error.message || "Something went wrong during analysis.",
+      values: { title, description, company },
+    };
   }
 }
 
@@ -82,133 +66,117 @@ export default function NewScan() {
   const navigation = useNavigation();
   const actionData = useActionData<typeof action>();
   const isSubmitting = navigation.state === "submitting";
+  const [fileUrl, setFileUrl] = useState<string>("");
 
   return (
-    <>
-      <Navbar />
-      <div className="min-h-screen bg-slate-950 text-white font-sans selection:bg-blue-500/30 flex">
-        <Sidebar />
-
-        <main className="flex-1 md:pl-64 min-h-screen relative overflow-hidden flex flex-col">
-          <AmbientBackground />
-
-          <header className="h-20 md:border border-white/10 md:bg-slate-900/50 backdrop-blur-md flex items-center px-8 shrink-0 z-10 mt-7">
-            <Link
-              to="/"
-              className="p-2 -ml-2 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition mr-4 hidden lg:block"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-            <div className="p-2">
-              <h1 className="text-xl font-bold text-white">New Resume Scan</h1>
-              <p className="text-sm text-slate-400">
-                Upload a resume and job details for personalized AI feedback
+    <div className="flex h-screen bg-neo-bg overflow-hidden">
+      <Sidebar />
+      <div className="flex-1 flex flex-col min-w-0">
+        <Navbar />
+        <main className="flex-1 overflow-y-auto p-4 md:p-8">
+          <div className="mx-auto space-y-8 lg:pl-64">
+            <div className="space-y-2">
+              <h1 className="text-4xl md:text-5xl font-black text-black uppercase tracking-tighter">
+                Scan Resume
+              </h1>
+              <p className="text-lg text-black font-medium border-l-4 border-neo-primary pl-4">
+                Upload your resume to get instant, brutal feedback.
               </p>
             </div>
-          </header>
 
-          <div className="flex-1 overflow-y-auto p-6 md:p-12">
-            <div className="max-w-3xl mx-auto space-y-8">
-              {/* We wrap everything in a Form to send it to the server */}
-              <Form
-                method="post"
-                encType="multipart/form-data"
-                className="space-y-8"
-              >
-                {/* Error Message Display */}
-                {actionData?.error && (
-                  <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400">
-                    {actionData.error}
-                  </div>
-                )}
+            <Form
+              method="post"
+              // Removed encType="multipart/form-data" as we are sending JSON-like data now
+              className="space-y-8"
+            >
+              <input type="hidden" name="fileUrl" value={fileUrl} />
 
-                <section className="space-y-4">
-                  <h2 className="text-lg font-semibold flex items-center gap-2 text-blue-300">
-                    <span className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400">
-                      1
-                    </span>
-                    Upload Resume
-                  </h2>
-                  <div className="h-64">
-                    {/* IMPORTANT: We give it a name so the server can find it! */}
-                    <UploadZone name="resume" />
-                  </div>
-                </section>
+              <div className="bg-white border-4 border-black shadow-neo p-6 md:p-8 space-y-6">
+                <div className="space-y-2">
+                  <label
+                    htmlFor="title"
+                    className="block text-lg font-bold text-black uppercase"
+                  >
+                    Resume Title
+                  </label>
+                  <input
+                    type="text"
+                    name="title"
+                    id="title"
+                    defaultValue={actionData?.values?.title}
+                    placeholder="e.g. Senior Frontend Developer"
+                    className="w-full bg-white border-4 border-black p-4 text-black font-bold placeholder:text-gray-400 focus:outline-none focus:shadow-neo transition-all"
+                  />
+                </div>
 
-                <section className="space-y-6">
-                  <h2 className="text-lg font-semibold flex items-center gap-2 text-purple-300">
-                    <span className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400">
-                      2
-                    </span>
-                    Job Details
-                  </h2>
+                <div className="space-y-2">
+                  <label
+                    htmlFor="company"
+                    className="block text-lg font-bold text-black uppercase"
+                  >
+                    Company Name
+                  </label>
+                  <input
+                    name="company"
+                    id="company"
+                    placeholder="Paste the company name here for targeted analysis..."
+                    className="w-full bg-white border-4 border-black p-4 text-black font-medium placeholder:text-gray-400 focus:outline-none focus:shadow-neo transition-all resize-none"
+                  />
+                </div>
 
-                  <div className="grid gap-6 p-6 rounded-2xl bg-slate-900/40 border border-white/10 backdrop-blur-sm">
-                    <div className="space-y-2">
-                      <label
-                        htmlFor="jobTitle"
-                        className="text-sm font-medium text-slate-300 flex items-center gap-2"
-                      >
-                        <Briefcase className="w-4 h-4" />
-                        Target Job Title
-                      </label>
-                      <input
-                        type="text"
-                        id="jobTitle"
-                        name="title" // Added name
-                        placeholder="e.g. Senior Frontend Developer"
-                        className="w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition"
-                      />
-                    </div>
+                <div className="space-y-2">
+                  <label
+                    htmlFor="description"
+                    className="block text-lg font-bold text-black uppercase"
+                  >
+                    Job Description
+                  </label>
+                  <textarea
+                    name="description"
+                    id="description"
+                    defaultValue={actionData?.values?.description}
+                    rows={4}
+                    placeholder="Paste the job description here for targeted analysis..."
+                    className="w-full bg-white border-4 border-black p-4 text-black font-medium placeholder:text-gray-400 focus:outline-none focus:shadow-neo transition-all resize-none"
+                  />
+                </div>
 
-                    <div className="space-y-2">
-                      <label
-                        htmlFor="jobDesc"
-                        className="text-sm font-medium text-slate-300 flex items-center gap-2"
-                      >
-                        <FileText className="w-4 h-4" />
-                        Job Description (Optional)
-                      </label>
-                      <div className="relative">
-                        <textarea
-                          id="jobDesc"
-                          name="description" // Added name
-                          rows={6}
-                          placeholder="Paste the job description here to get tailored feedback..."
-                          className="w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition resize-none"
-                        />
-                        <div className="absolute bottom-3 right-3 text-xs text-slate-600">
-                          0/5000
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </section>
+                <div className="space-y-2">
+                  <label className="block text-lg font-bold text-black uppercase">
+                    Upload PDF
+                  </label>
+                  <UploadZone
+                    // No name prop to avoid submitting the File object
+                    onFileAccepted={(url) => setFileUrl(url)}
+                  />
+                  {/* Visually show if file is staged for analysis */}
+                  {fileUrl && (
+                    <p className="text-sm font-bold text-green-600 uppercase">
+                      File Ready for Analysis
+                    </p>
+                  )}
+                </div>
 
                 <div className="pt-4">
                   <button
                     type="submit"
-                    disabled={isSubmitting}
-                    className="w-full py-4 rounded-xl bg-linear-to-r from-blue-600 to-purple-600 text-white font-bold text-lg shadow-[0_0_30px_rgba(79,70,229,0.3)] hover:shadow-[0_0_50px_rgba(79,70,229,0.5)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-3 group disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={isSubmitting || !fileUrl}
+                    className="w-full bg-neo-primary text-white text-xl font-black uppercase py-4 border-4 border-black shadow-neo hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none active:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isSubmitting ? (
-                      "Analyzing..."
-                    ) : (
-                      <>
-                        <Sparkles className="w-5 h-5 animate-pulse" />
-                        Analyze Resume
-                      </>
-                    )}
+                    {isSubmitting ? "Analyzing..." : "Start Analysis"}
                   </button>
-                  <p className="text-center text-xs text-slate-500 mt-4">
-                    Powered by Gemini 1.5 Pro • Takes ~30 seconds
-                  </p>
                 </div>
-              </Form>
-            </div>
+              </div>
+            </Form>
+
+            {actionData?.error && (
+              <div className="bg-red-500 text-white p-4 border-4 border-black shadow-neo font-bold text-center animate-bounce">
+                {actionData.error}
+              </div>
+            )}
           </div>
         </main>
       </div>
-    </>
+    </div>
   );
 }

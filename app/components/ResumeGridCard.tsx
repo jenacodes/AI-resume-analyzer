@@ -1,84 +1,66 @@
 import { Link } from "react-router";
 import { ArrowRight, Building2, Calendar } from "lucide-react";
+import type { Resume } from "@prisma/client";
+import type { AnalysisResult } from "~/services/gemini.server";
+
+interface ResumeWithFeedback extends Resume {
+  feedback: AnalysisResult;
+}
 
 interface ResumeGridCardProps {
-  resume: Resume;
+  resume: ResumeWithFeedback;
 }
 
 export function ResumeGridCard({ resume }: ResumeGridCardProps) {
+  const imagePreview = "/placeholder-resume.png";
+  const dateStr = new Date(resume.createdAt).toLocaleDateString();
   return (
     <Link
       to={`/resume/${resume.id}`}
-      className="group relative bg-slate-900/50 border border-white/10 rounded-2xl overflow-hidden hover:border-blue-500/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] flex flex-col"
+      className="group relative bg-white border-4 border-black shadow-neo hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-200 flex flex-col"
     >
       {/* Image Preview Section */}
-      <div className="relative h-48 overflow-hidden bg-slate-800">
-        <img
+      <div className="relative h-48 overflow-hidden bg-gray-200 border-b-4 border-black">
+        {/* <img
           src={resume.imagePath}
-          alt={`${resume.jobTitle} Resume`}
-          className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105 opacity-80 group-hover:opacity-100"
-        />
-        <div className="absolute inset-0 bg-linear-to-t from-slate-900 via-slate-900/20 to-transparent" />
+          alt={`${resume.title} Resume`}
+          className="w-full h-full object-cover object-top grayscale group-hover:grayscale-0 transition-all duration-500"
+        /> */}
+        {/* We just show a generic 'Resume' icon or pattern because we only have PDFs */}
+        <div className="w-full h-full flex items-center justify-center bg-neo-bg">
+          <span className="font-black text-4xl text-gray-300 uppercase -rotate-12 select-none">
+            PREVIEW
+          </span>
+        </div>
 
         {/* Score Badge */}
-        <div className="absolute top-3 right-3">
-          <div className="relative flex items-center justify-center w-12 h-12">
-            <svg className="w-full h-full transform -rotate-90">
-              <circle
-                cx="24"
-                cy="24"
-                r="20"
-                stroke="currentColor"
-                strokeWidth="4"
-                fill="transparent"
-                className="text-slate-700"
-              />
-              <circle
-                cx="24"
-                cy="24"
-                r="20"
-                stroke="currentColor"
-                strokeWidth="4"
-                fill="transparent"
-                strokeDasharray={125.6}
-                strokeDashoffset={
-                  125.6 - (125.6 * resume.feedback.overallScore) / 100
-                }
-                className={`text-blue-500 transition-all duration-1000 ease-out ${
-                  resume.feedback.overallScore >= 80
-                    ? "text-green-500"
-                    : resume.feedback.overallScore >= 60
-                      ? "text-blue-500"
-                      : "text-yellow-500"
-                }`}
-              />
-            </svg>
-            <span className="absolute text-xs font-bold text-white">
-              {resume.feedback.overallScore}
-            </span>
-          </div>
+        <div className="absolute top-0 right-0 p-2 bg-black text-white font-black text-xl border-l-4 border-b-4 border-white">
+          {resume.feedback.overallScore}
         </div>
       </div>
 
       {/* Content Section */}
-      <div className="p-5 flex-1 flex flex-col">
+      <div className="p-5 flex-1 flex flex-col bg-white">
         <div className="mb-4">
-          <h3 className="text-lg font-bold text-white mb-1 group-hover:text-blue-400 transition-colors">
-            {resume.jobTitle}
+          <h3 className="text-xl font-black text-black uppercase mb-1 leading-tight group-hover:underline decoration-4 decoration-neo-primary underline-offset-4">
+            {resume.title || "Untitled Resume"}
           </h3>
-          <div className="flex items-center gap-2 text-sm text-slate-400">
-            <Building2 className="w-3.5 h-3.5" />
-            <span>{resume.companyName}</span>
+          <div className="flex items-center gap-2 text-sm font-bold text-gray-600 uppercase">
+            <Building2 className="w-4 h-4 text-black" />
+            <span>{resume.company || "No company"}</span>
+            <div className="text-xs font-bold text-green-600 mt-1">
+              {resume.feedback.estimatedSalary}
+            </div>
           </div>
         </div>
 
-        <div className="mt-auto flex items-center justify-between pt-4 border-t border-white/5">
-          <div className="flex items-center gap-2 text-xs text-slate-500">
-            <Calendar className="w-3.5 h-3.5" />
-            <span>{new Date(resume.dateUploaded).toLocaleDateString()}</span>
+        <div className="mt-auto flex items-center justify-between pt-4 border-t-4 border-black">
+          <div className="flex items-center gap-2 text-xs font-bold text-black uppercase">
+            <Calendar className="w-4 h-4" />
+            <span>{dateStr}</span>
           </div>
-          <span className="flex items-center gap-1 text-xs font-medium text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity transform translate-x-[-10px] group-hover:translate-x-0 duration-300">
-            View Analysis <ArrowRight className="w-3.5 h-3.5" />
+          <span className="flex items-center gap-1 text-xs font-black text-white bg-black px-2 py-1 uppercase group-hover:bg-neo-primary transition-colors">
+            View <ArrowRight className="w-3 h-3" />
           </span>
         </div>
       </div>

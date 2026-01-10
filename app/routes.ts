@@ -12,4 +12,5 @@ export default [
   route("signup", "routes/signup.tsx"),
   route("logout", "routes/logout.tsx"),
   route("cover-letter", "routes/cover-letter.tsx"),
+  route("api/uploadthing", "routes/api.uploadthing.ts"),
 ] satisfies RouteConfig;

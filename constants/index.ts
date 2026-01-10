@@ -5,6 +5,7 @@ export const resumes: Resume[] = [
     jobTitle: "Frontend Developer",
     imagePath: "/images/resume_01.png",
     resumePath: "/resumes/resume-1.pdf",
+    dateUploaded: "2023-11-20",
     feedback: {
       overallScore: 85,
       ATS: {
@@ -35,6 +36,7 @@ export const resumes: Resume[] = [
     jobTitle: "Cloud Engineer",
     imagePath: "/images/resume_02.png",
     resumePath: "/resumes/resume-2.pdf",
+    dateUploaded: "2023-11-22",
     feedback: {
       overallScore: 55,
       ATS: {
@@ -65,6 +67,7 @@ export const resumes: Resume[] = [
     jobTitle: "iOS Developer",
     imagePath: "/images/resume_03.png",
     resumePath: "/resumes/resume-3.pdf",
+    dateUploaded: "2023-11-25",
     feedback: {
       overallScore: 75,
       ATS: {
@@ -95,6 +98,7 @@ export const resumes: Resume[] = [
     jobTitle: "iOS Developer",
     imagePath: "/images/resume_03.png",
     resumePath: "/resumes/resume-3.pdf",
+    dateUploaded: "2023-11-25",
     feedback: {
       overallScore: 75,
       ATS: {
@@ -121,10 +125,11 @@ export const resumes: Resume[] = [
   },
   {
     id: "5",
-    companyName: "Apple",
-    jobTitle: "iOS Developer",
-    imagePath: "/images/resume_03.png",
+    companyName: "Astrosoft",
+    jobTitle: "Software Developer",
+    imagePath: "/images/jena.png",
     resumePath: "/resumes/resume-3.pdf",
+    dateUploaded: "2023-11-25",
     feedback: {
       overallScore: 75,
       ATS: {
