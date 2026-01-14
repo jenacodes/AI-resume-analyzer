@@ -21,6 +21,7 @@ model User {
 model Resume {
   id           String   @id @default(uuid())
   userId       String
+  name         String   @default("My Resume")
   title        String   // e.g. "Frontend Developer"
   company      String?  // e.g. "Google"
   filePath     String   // Path to PDF on disk
