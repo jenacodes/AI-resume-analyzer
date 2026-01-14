@@ -19,11 +19,14 @@ const ResumeCard = ({ resume }: { resume: ResumeWithFeedback }) => {
             <FileText className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h2 className="text-black font-black uppercase text-lg leading-tight">
-              {resume.company || "Company Not Set"}
+            <h2
+              className="text-black font-black uppercase text-lg leading-tight truncate max-w-[200px]"
+              title={resume.name}
+            >
+              {resume.name}
             </h2>
-            <h4 className="font-bold text-gray-700 group-hover:text-black transition">
-              {resume.title}
+            <h4 className="font-bold text-gray-700 group-hover:text-black transition text-sm">
+              {resume.title} {resume.company ? `@ ${resume.company}` : ""}
             </h4>
           </div>
         </div>

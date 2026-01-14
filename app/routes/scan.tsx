@@ -25,6 +25,7 @@ export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
   // We now receive a fileUrl string, not a File object
   const fileUrl = formData.get("fileUrl") as string;
+  const fileName = (formData.get("fileName") as string) || "My Resume";
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
   const company = formData.get("company") as string;
@@ -39,6 +40,7 @@ export async function action({ request }: Route.ActionArgs) {
     const resume = await processResumeUpload(
       userId,
       fileUrl as any, // Processing service updated to accept string
+      fileName,
       title,
       description,
       company
@@ -67,6 +69,7 @@ export default function NewScan() {
   const actionData = useActionData<typeof action>();
   const isSubmitting = navigation.state === "submitting";
   const [fileUrl, setFileUrl] = useState<string>("");
+  const [fileName, setFileName] = useState<string>("");
 
   return (
     <div className="flex h-screen bg-neo-bg overflow-hidden">
@@ -90,6 +93,7 @@ export default function NewScan() {
               className="space-y-8"
             >
               <input type="hidden" name="fileUrl" value={fileUrl} />
+              <input type="hidden" name="fileName" value={fileName} />
 
               <div className="bg-white border-4 border-black shadow-neo p-6 md:p-8 space-y-6">
                 <div className="space-y-2">
@@ -147,7 +151,10 @@ export default function NewScan() {
                   </label>
                   <UploadZone
                     // No name prop to avoid submitting the File object
-                    onFileAccepted={(url) => setFileUrl(url)}
+                    onFileAccepted={(url, name) => {
+                      setFileUrl(url);
+                      setFileName(name);
+                    }}
                   />
                   {/* Visually show if file is staged for analysis */}
                   {fileUrl && (

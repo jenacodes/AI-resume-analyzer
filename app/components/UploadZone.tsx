@@ -8,7 +8,7 @@ export function UploadZone({
   onFileAccepted,
 }: {
   name?: string;
-  onFileAccepted?: (fileUrl: string) => void;
+  onFileAccepted?: (fileUrl: string, fileName: string) => void;
 }) {
   // 1. Track the selected file
   const [file, setFile] = React.useState<File | null>(null);
@@ -21,7 +21,8 @@ export function UploadZone({
       if (res && res[0]) {
         // Trigger callback if provided
         if (onFileAccepted) {
-          onFileAccepted(res[0].url);
+          // Pass both URL and Name
+          onFileAccepted(res[0].url, res[0].name);
         }
       }
     },

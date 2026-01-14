@@ -1,12 +1,11 @@
 import { db } from "~/db.server";
 import { analyzeResume } from "./gemini.server";
 import { extractTextFromBuffer } from "./pdf.server";
-// import { uploadFile } from "./storage.server"; // No longer needed
-import fs from "fs/promises";
 
 export async function processResumeUpload(
   userId: string,
-  fileUrl: string, // Changed from File to string
+  fileUrl: string,
+  fileName: string,
   title?: string,
   description?: string,
   company?: string
@@ -31,7 +30,7 @@ export async function processResumeUpload(
 
     // 3. Analyze with Gemini AI
     // Use provided title or filename if not provided
-    const jobTitle = title || "Untitled Resume";
+    const jobTitle = title || fileName;
     console.time("Gemini Analysis");
     const analysisResult = await analyzeResume(
       resumeText,
@@ -44,6 +43,7 @@ export async function processResumeUpload(
     const resume = await db.resume.create({
       data: {
         userId,
+        name: fileName,
         title: jobTitle,
         // We now store the full URL instead of a relative local path
         filePath: fileUrl,
