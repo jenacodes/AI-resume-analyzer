@@ -21,17 +21,17 @@ export function ResumeGridCard({ resume }: ResumeGridCardProps) {
     >
       {/* Image Preview Section */}
       <div className="relative h-48 overflow-hidden bg-gray-200 border-b-4 border-black">
-        {/* <img
-          src={resume.imagePath}
-          alt={`${resume.title} Resume`}
+        <iframe
+          src={resume.filePath}
+          title={`${resume.title} Resume`}
           className="w-full h-full object-cover object-top grayscale group-hover:grayscale-0 transition-all duration-500"
-        /> */}
+        />
         {/* We just show a generic 'Resume' icon or pattern because we only have PDFs */}
-        <div className="w-full h-full flex items-center justify-center bg-neo-bg">
+        {/* <div className="w-full h-full flex items-center justify-center bg-neo-bg">
           <span className="font-black text-4xl text-gray-300 uppercase -rotate-12 select-none">
             PREVIEW
           </span>
-        </div>
+        </div> */}
 
         {/* Score Badge */}
         <div className="absolute top-0 right-0 p-2 bg-black text-white font-black text-xl border-l-4 border-b-4 border-white">
@@ -43,7 +43,7 @@ export function ResumeGridCard({ resume }: ResumeGridCardProps) {
       <div className="p-5 flex-1 flex flex-col bg-white">
         <div className="mb-4">
           <h3 className="text-xl font-black text-black uppercase mb-1 leading-tight group-hover:underline decoration-4 decoration-neo-primary underline-offset-4">
-            {resume.title || "Untitled Resume"}
+            {resume.title === "Untitled Resume" ? resume.name : resume.title}
           </h3>
           <div className="flex items-center gap-2 text-sm font-bold text-gray-600 uppercase">
             <Building2 className="w-4 h-4 text-black" />
