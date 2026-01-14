@@ -54,6 +54,7 @@ export async function action({ request }: Route.ActionArgs) {
   //Process File
   const formData = await request.formData();
   const fileUrl = formData.get("fileUrl") as string;
+  const fileName = (formData.get("fileName") as string) || "My Resume";
 
   console.log("Home Action received fileUrl:", fileUrl);
 
@@ -66,7 +67,7 @@ export async function action({ request }: Route.ActionArgs) {
   try {
     //Process file and send to the server
     // Note: processResumeUpload will be updated to accept string URL
-    const resume = await processResumeUpload(userId, fileUrl as any);
+    const resume = await processResumeUpload(userId, fileUrl as any, fileName);
     return redirect(`/resume/${resume.id}`);
   } catch (error: any) {
     console.error("Home Action Error:", error);
@@ -93,9 +94,10 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   const isAnalyzing = navigation.state === "submitting";
 
   //2. Submit the form data
-  const handleFileAccepted = (fileUrl: string) => {
+  const handleFileAccepted = (fileUrl: string, fileName: string) => {
     const formData = new FormData();
     formData.append("fileUrl", fileUrl);
+    formData.append("fileName", fileName);
     submit(formData, { method: "post" });
   };
 

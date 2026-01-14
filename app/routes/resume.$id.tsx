@@ -54,7 +54,9 @@ export default function ResumeDetail({ loaderData }: Route.ComponentProps) {
               </Link>
               <div>
                 <h1 className="font-black text-2xl uppercase tracking-tight text-black">
-                  {resume.title}
+                  {resume.title === "Untitled Resume"
+                    ? resume.name
+                    : resume.title}
                 </h1>
                 <p className="text-sm font-bold text-gray-600 uppercase">
                   {resume.company}
