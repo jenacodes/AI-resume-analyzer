@@ -3,15 +3,28 @@ import { Sidebar } from "../components/Sidebar";
 import { ArrowLeft, Upload, Save, X } from "lucide-react";
 import { Link, redirect } from "react-router";
 import { useState } from "react";
+import { db } from "~/db.server";
 
 import { getSession } from "~/sessions";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
-  if (!session.has("userId")) {
+  const userId = session.get("userId");
+
+  if (!userId) {
     throw redirect("/login");
   }
-  return null;
+
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: { name: true, email: true },
+  });
+
+  if (!user) {
+    throw redirect("/login");
+  }
+
+  return { user };
 }
 
 export function meta({}: Route.MetaArgs) {
@@ -21,12 +34,14 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export default function EditProfile() {
+export default function EditProfile({ loaderData }: Route.ComponentProps) {
+  const { user } = loaderData;
+
   const [formData, setFormData] = useState({
-    name: "Jena K.",
-    email: "jena@example.com",
-    bio: "Senior Software Engineer specializing in React and AI technologies.",
-    location: "San Francisco, CA",
+    name: user.name || "",
+    email: user.email,
+    bio: "Senior Software Engineer specializing in React and AI technologies.", // Placeholder as we don't have bio in DB yet
+    location: "San Francisco, CA", // Placeholder
   });
 
   const handleSubmit = (e: React.FormEvent) => {
