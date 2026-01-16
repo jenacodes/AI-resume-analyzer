@@ -3,9 +3,21 @@ import { Link } from "react-router";
 import { useRouteLoaderData } from "react-router";
 import type { loader } from "../root";
 
-export function ProfileHeader() {
-  const rootData = useRouteLoaderData<typeof loader>("root");
-  const user = rootData?.user;
+// interface ProfileHeaderProps {
+//   user: {
+//     name: string | null;
+//     email: string;
+//   };
+// }
+
+interface ProfileHeaderProps {
+  user: {
+    name: string | null;
+    email: string;
+  };
+}
+
+export function ProfileHeader({ user }: ProfileHeaderProps) {
   return (
     <div className="bg-white border-4 border-black shadow-neo p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 md:gap-8 relative overflow-hidden">
       {/* Avatar */}
@@ -38,8 +50,7 @@ export function ProfileHeader() {
 
         <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-sm font-bold text-black uppercase">
           <div className="flex items-center gap-1.5">
-            <Mail className="w-4 h-4" />
-            <span>jena@example.com</span>
+            <span>{user?.email}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <MapPin className="w-4 h-4" />

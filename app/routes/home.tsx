@@ -114,11 +114,12 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   const jobMatches = resumes.length > 0 ? Math.floor(resumes.length * 1.5) : 0;
 
   // Safe access for new fields (older scans might not have them)
-  const skillsFound = latestResume?.feedback.extractedSkills
-    ? latestResume.feedback.extractedSkills.length
-    : latestResume?.feedback.skills?.tips?.length || 0;
+  const skillsFound =
+    latestResume?.feedback?.extractedSkills?.length ??
+    latestResume?.feedback?.skills?.tips?.length ??
+    0;
 
-  const marketValue = latestResume?.feedback.estimatedSalary || "-";
+  const marketValue = latestResume?.feedback?.estimatedSalary || "-";
 
   return (
     <div className="min-h-screen bg-neo-bg text-black font-sans selection:bg-neo-primary selection:text-white">
@@ -256,7 +257,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                   Improvement Tips
                 </h3>
                 <div className="space-y-4">
-                  {latestResume ? (
+                  {latestResume && latestResume.feedback?.content?.tips ? (
                     latestResume.feedback.content.tips
                       .filter((t) => t.type === "improve")
                       .slice(0, 3)
