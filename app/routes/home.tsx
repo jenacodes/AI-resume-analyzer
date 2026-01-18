@@ -17,7 +17,7 @@ import Navbar from "~/components/Navbar";
 import { getSession } from "~/sessions";
 import { db } from "~/db.server";
 import type { AnalysisResult } from "~/services/gemini.server";
-import { processResumeUpload } from "~/services/scan.server";
+import { createPendingResume } from "~/services/scan.server";
 
 export async function loader({ request }: Route.LoaderArgs) {
   //1. Authenticate the user
@@ -38,7 +38,9 @@ export async function loader({ request }: Route.LoaderArgs) {
   // Transform Prisma data to include parsed feedback matching our UI expectations
   const resumesWithFeedback = resumes.map((resume) => ({
     ...resume,
-    feedback: JSON.parse(resume.analysisJson) as AnalysisResult,
+    feedback: resume.analysisJson
+      ? (JSON.parse(resume.analysisJson) as AnalysisResult)
+      : null, // Handle pending analysis
   }));
 
   //3. Return to component
@@ -66,8 +68,8 @@ export async function action({ request }: Route.ActionArgs) {
 
   try {
     //Process file and send to the server
-    // Note: processResumeUpload will be updated to accept string URL
-    const resume = await processResumeUpload(userId, fileUrl as any, fileName);
+    // Note: processResumeUpload was renamed to createPendingResume
+    const resume = await createPendingResume(userId, fileUrl, fileName);
     return redirect(`/resume/${resume.id}`);
   } catch (error: any) {
     console.error("Home Action Error:", error);
@@ -105,8 +107,8 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   const averageScore =
     resumes.length > 0
       ? Math.round(
-          resumes.reduce((acc, r) => acc + (r.feedback.overallScore || 0), 0) /
-            resumes.length
+          resumes.reduce((acc, r) => acc + (r.feedback?.overallScore || 0), 0) /
+            (resumes.filter((r) => r.feedback).length || 1), // Avoid divide by zero
         )
       : 0;
 
