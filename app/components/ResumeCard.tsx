@@ -4,7 +4,7 @@ import type { AnalysisResult } from "~/services/gemini.server";
 
 // Define the type expected by the component (Prisma Resume + parsed feedback)
 interface ResumeWithFeedback extends Resume {
-  feedback: AnalysisResult;
+  feedback: AnalysisResult | null;
 }
 
 const ResumeCard = ({ resume }: { resume: ResumeWithFeedback }) => {
@@ -32,12 +32,25 @@ const ResumeCard = ({ resume }: { resume: ResumeWithFeedback }) => {
         </div>
         <div className="flex items-center gap-4">
           <div className="text-right">
-            <span className="block text-xl font-black text-black">
-              {resume.feedback.overallScore}%
-            </span>
-            <span className="text-xs font-bold text-gray-600 uppercase">
-              Match Score
-            </span>
+            {resume.feedback ? (
+              <>
+                <span className="block text-xl font-black text-black">
+                  {resume.feedback.overallScore}%
+                </span>
+                <span className="text-xs font-bold text-gray-600 uppercase">
+                  Match Score
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="block text-sm font-black text-black animate-pulse">
+                  {resume.status === "FAILED" ? "FAILED" : "ANALYZING..."}
+                </span>
+                <span className="text-xs font-bold text-gray-600 uppercase">
+                  Status
+                </span>
+              </>
+            )}
           </div>
           <div className="w-10 h-10 border-2 border-black bg-white flex items-center justify-center group-hover:bg-black group-hover:text-white transition-colors shadow-neo-sm">
             →
