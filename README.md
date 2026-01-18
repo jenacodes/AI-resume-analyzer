@@ -14,11 +14,13 @@ A powerful, AI-driven application that analyzes resumes against job descriptions
 
 ## � Screenshots
 
-<!-- Add your screenshots here. Example: -->
-<!-- ![Dashboard](/public/dashboard.png) -->
-<!-- ![Analysis](/public/analysis.png) -->
-
-_Place your application screenshots here to showcase the UI._
+![Dashboard](/public/Dashboard.png)
+![Analysis](/public/Analysis.png)
+![Resume](/public/resumes.png)
+![Login](/public/Login.png)
+![Register](/public/sign-up.png)
+![Welcome](/public/Welcome.png)
+![Scan](/public/Scan.png)
 
 ## �🛠️ Tech Stack
 
