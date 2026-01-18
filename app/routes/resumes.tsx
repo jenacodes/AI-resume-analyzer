@@ -27,7 +27,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const resumes = resumeData.map((resume) => ({
     ...resume,
-    feedback: JSON.parse(resume.analysisJson) as AnalysisResult,
+    feedback: JSON.parse(resume.analysisJson || "{}") as AnalysisResult,
   }));
 
   return { resumes };
@@ -47,7 +47,7 @@ export default function MyResumes({ loaderData }: Route.ComponentProps) {
   const filteredResumes = resumes.filter(
     (resume) =>
       (resume.title || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (resume.company || "").toLowerCase().includes(searchQuery.toLowerCase())
+      (resume.company || "").toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (

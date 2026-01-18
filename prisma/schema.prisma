@@ -24,9 +24,9 @@ model Resume {
   name         String   @default("My Resume")
   title        String   // e.g. "Frontend Developer"
   company      String?  // e.g. "Google"
-
   filePath     String   // Path to PDF on disk
-  analysisJson String   // JSON string of AI analysis
+  analysisJson String?  // JSON string of AI analysis
+  status       String   @default("PENDING") // PENDING, PROCESSING, COMPLETED, FAILED
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
