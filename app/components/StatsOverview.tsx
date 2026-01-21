@@ -1,37 +1,20 @@
 import { FileText, Star, Zap, TrendingUp } from "lucide-react";
 
-export function StatsOverview() {
-  const stats = [
-    {
-      label: "Total Scans",
-      value: "24",
-      icon: FileText,
-      color: "text-white",
-      bg: "bg-neo-primary",
-    },
-    {
-      label: "Average Score",
-      value: "78",
-      icon: Star,
-      color: "text-white",
-      bg: "bg-neo-secondary",
-    },
-    {
-      label: "Interviews",
-      value: "12",
-      icon: Zap,
-      color: "text-black",
-      bg: "bg-neo-accent",
-    },
-    {
-      label: "Improvement",
-      value: "+15%",
-      icon: TrendingUp,
-      color: "text-black",
-      bg: "bg-green-400",
-    },
-  ];
+import type { LucideIcon } from "lucide-react";
 
+interface StatItem {
+  label: string;
+  value: string;
+  icon: LucideIcon;
+  color: string;
+  bg: string;
+}
+
+interface StatsOverviewProps {
+  stats: StatItem[];
+}
+
+export function StatsOverview({ stats }: StatsOverviewProps) {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       {stats.map((stat, index) => (

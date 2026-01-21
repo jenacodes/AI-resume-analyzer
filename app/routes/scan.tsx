@@ -11,8 +11,8 @@ import {
 } from "react-router";
 import Navbar from "~/components/Navbar";
 import { getSession } from "~/sessions";
-import { processResumeUpload } from "~/services/scan.server";
 import { useState } from "react";
+import { createPendingResume } from "~/services/scan.server";
 
 //1. This runs on the server when the form is submitted
 export async function action({ request }: Route.ActionArgs) {
@@ -37,13 +37,13 @@ export async function action({ request }: Route.ActionArgs) {
 
   try {
     // 4. Process Upload (Shared Logic)
-    const resume = await processResumeUpload(
+    const resume = await createPendingResume(
       userId,
-      fileUrl as any, // Processing service updated to accept string
+      fileUrl,
       fileName,
       title,
+      company,
       description,
-      company
     );
 
     // 5. Redirect to the results page

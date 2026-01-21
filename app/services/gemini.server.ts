@@ -64,7 +64,7 @@ const analysisResponseSchema = {
 //3. Keep Zod for Runtime Type Safety
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({
-  model: "gemini-2.5-flash", 
+  model: "gemini-2.5-flash",
   generationConfig: {
     responseMimeType: "application/json",
     responseSchema: analysisResponseSchema,
@@ -82,7 +82,7 @@ const FeedbackItemSchema = z.object({
       type: z.enum(["good", "improve"]), // Strict check: only these two strings allowed
       tip: z.string(),
       explanation: z.string().nullable().optional(),
-    })
+    }),
   ),
 });
 
@@ -105,7 +105,7 @@ export type AnalysisResult = z.infer<typeof AnalysisSchema>;
 export async function analyzeResume(
   resumeText: string,
   jobTitle: string,
-  jobDesc?: string
+  jobDesc?: string,
 ): Promise<AnalysisResult> {
   // 3. Construct the Prompt
   // const prompt = `
@@ -169,7 +169,7 @@ export async function analyzeResume(
 
     1.  **estimatedSalary**: 
         - Based on the skills, years of experience, and role complexity.
-        - Output a realistic annual salary range in USD (e.g., "$90,000 - $110,000").
+        - Output a realistic annual salary range in USD without adding any more words to it (e.g., "$90,000 - $110,000").
     
     2.  **extractedSkills**: 
         - Extract the top 10 most relevant technical and soft skills found in the text.
@@ -215,10 +215,10 @@ export async function analyzeResume(
     if (error instanceof z.ZodError) {
       console.error(
         "Zod Validation Error:",
-        JSON.stringify(error.errors, null, 2)
+        JSON.stringify(error.errors, null, 2),
       );
       throw new Error(
-        `Resume analysis failed validation: ${error.errors.map((e) => `${e.path.join(".")}: ${e.message}`).join(", ")}`
+        `Resume analysis failed validation: ${error.errors.map((e) => `${e.path.join(".")}: ${e.message}`).join(", ")}`,
       );
     }
     console.error("Error analyzing resume with Gemini:", error);

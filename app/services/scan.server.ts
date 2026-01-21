@@ -2,64 +2,82 @@ import { db } from "~/db.server";
 import { analyzeResume } from "./gemini.server";
 import { extractTextFromBuffer } from "./pdf.server";
 
-export async function processResumeUpload(
+export async function createPendingResume(
   userId: string,
   fileUrl: string,
   fileName: string,
   title?: string,
+  company?: string,
   description?: string,
-  company?: string
 ) {
-  console.time("Total Processing Time");
+  // FAST PATH: Just create the DB record
+  return db.resume.create({
+    data: {
+      userId,
+      name: fileName,
+      title: title || fileName,
+      company: company || "AI Analyzed",
+      description: description, // Save description
+      filePath: fileUrl,
+      status: "PENDING", // Start as PENDING
+    },
+  });
+}
 
-  // 1. Fetch the file from UploadThing/S3
-  console.time("Fetch File");
-  const response = await fetch(fileUrl);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch file from ${fileUrl}`);
-  }
-  const arrayBuffer = await response.arrayBuffer();
-  const fileBuffer = Buffer.from(arrayBuffer);
-  console.timeEnd("Fetch File");
+export async function performResumeAnalysis(resumeId: string) {
+  console.time(`Analysis for ${resumeId}`);
+
+  // 1. Fetch record
+  const resume = await db.resume.findUnique({ where: { id: resumeId } });
+  if (!resume) throw new Error("Resume not found");
 
   try {
-    // 2. Extract Text from Buffer
+    // Update status to PROCESSING
+    await db.resume.update({
+      where: { id: resumeId },
+      data: { status: "PROCESSING" },
+    });
+
+    // 2. Fetch File
+    console.time("Fetch File");
+    const response = await fetch(resume.filePath);
+    if (!response.ok) throw new Error("Failed to download file");
+    const arrayBuffer = await response.arrayBuffer();
+    const fileBuffer = Buffer.from(arrayBuffer);
+    console.timeEnd("Fetch File");
+
+    // 3. Extract Text
     console.time("PDF Extraction");
     const resumeText = await extractTextFromBuffer(fileBuffer);
     console.timeEnd("PDF Extraction");
 
-    // 3. Analyze with Gemini AI
-    // Use provided title or filename if not provided
-    const jobTitle = title || fileName;
+    // 4. Analyze
     console.time("Gemini Analysis");
+    // Use the saved description from the DB!
     const analysisResult = await analyzeResume(
       resumeText,
-      jobTitle,
-      description
+      resume.title,
+      resume.description || undefined,
     );
     console.timeEnd("Gemini Analysis");
 
-    // 4. Create DB Record
-    const resume = await db.resume.create({
+    // 5. Update DB
+    await db.resume.update({
+      where: { id: resumeId },
       data: {
-        userId,
-        name: fileName,
-        title: jobTitle,
-        // We now store the full URL instead of a relative local path
-        filePath: fileUrl,
+        status: "COMPLETED",
         analysisJson: JSON.stringify(analysisResult),
-        company: company || "AI Analyzed", // Placeholder
       },
     });
 
-    console.timeEnd("Total Processing Time");
-    return resume;
-  } catch (error) {
-    console.error("Processing failed:", error);
-    // We don't need to delete the local file anymore because we never saved it locally!
-    // However, technically the file still exists on UploadThing.
-    // Ideally we would trigger a delete via UT API if analysis fails, but that requires an API key secret.
-    // For now, let's just log the error.
+    console.timeEnd(`Analysis for ${resumeId}`);
+    return { success: true };
+  } catch (error: any) {
+    console.error("Analysis Failed:", error);
+    await db.resume.update({
+      where: { id: resumeId },
+      data: { status: "FAILED" },
+    });
     throw error;
   }
 }
