@@ -47,7 +47,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   const parsedResumes = resumes.map((r) => ({
     ...r,
-    analysis: JSON.parse(r.analysisJson) as AnalysisResult,
+    analysis: JSON.parse(r.analysisJson || "{}") as AnalysisResult,
   }));
 
   // Calculate stats
@@ -56,7 +56,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   // Calculate total score and average score
   const totalScore = parsedResumes.reduce(
     (acc, r) => acc + (r.analysis.overallScore || 0),
-    0
+    0,
   );
   const averageScore = totalScans > 0 ? Math.round(totalScore / totalScans) : 0;
 
