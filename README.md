@@ -1,81 +1,195 @@
-# AI Resume Analyzer
+# 🚀 AI Resume Analyzer
 
-A powerful, AI-driven application that analyzes resumes against job descriptions to provide detailed feedback, scoring, and improvement tips. Built with the latest web technologies including React Router v7 and Gemini 2.5 Flash.
+> **Transform your resume with actionable, AI-driven intelligence.**
 
-## 🚀 Features
+A modern, high-performance web application designed to help job seekers optimize their resumes for Applicant Tracking Systems (ATS) and human recruiters. Built with an event-driven architecture to handle heavy AI processing workloads without compromising user experience.
 
-- **AI-Powered Analysis**: Utilizes Google's Gemini 2.5 Flash model to deeply analyze resumes.
-- **Detailed Scoring**: Provides an overall score and breakdowns for ATS compatibility, Content, Structure, and Skills.
-- **Actionable Feedback**: Offers specific "Good" and "Improve" tips for each section.
-- **PDF Parsing**: Precise text extraction from PDF resumes using `pdf-parse`.
-- **User Authentication**: Secure login and signup to save your analysis history.
-- **Resume History**: View past analyses and track your improvements over time.
-- **Modern UI**: Clean, responsive interface built with Tailwind CSS v4.
 
-## � Screenshots
-
+## 📸 A view of the app
 ![Dashboard](/public/Dashboard.png)
 ![Analysis](/public/Analysis.png)
-![Resume](/public/resumes.png)
-![Login](/public/Login.png)
-![Register](/public/sign-up.png)
-![Welcome](/public/Welcome.png)
-![Scan](/public/Scan.png)
 
-## �🛠️ Tech Stack
+---
 
-- **Framework**: [React Router v7](https://reactrouter.com/)
-- **Frontend**: React 19, Tailwind CSS v4
-- **Backend**: Node.js, Prisma ORM
-- **Database**: SQLite (default)
-- **AI**: Google Generative AI (Gemini 2.5 Flash)
-- **Authentication**: Bcryptjs (Custom implementation)
+## 🧠 Engineering & Architecture
+
+We moved beyond the traditional "MVP" architecture to build a system that scales. Here is a deep dive into our technical decision-making process.
+
+### 1. The Core Problem: Long-Running Processes
+
+Analyzing a resume is computationally and temporally expensive:
+
+1.  **Transport**: Uploading large PDFs to a server.
+2.  **Processing**: Parsing binary PDF data into raw text.
+3.  **Inference**: Sending massive context windows to an LLM (Gemini) and waiting for token generation.
+
+**The Naive Approach (Synchronous):**
+A standard Request/Response cycle would timeout. If the user uploads a file, and the server tries to do all 3 steps above in one go, the browser spinner would hang for 30-60 seconds. This kills UX and occupies a server thread, making the app vulnerable to DoS.
+
+### 2. The Solution: Async, Event-Driven Architecture
+
+We implemented a decoupled, non-blocking pipeline:
+
+**Step A: Direct-to-Cloud Upload (Bypassing Server RAM)**
+Instead of streaming the file `Browser -> Server RAM -> S3`, we used **UploadThing**.
+
+- The client requests a "Presigned URL".
+- The browser uploads the file **directly** to the storage bucket.
+- **Benefit**: Our Node.js server never sees the file blob, saving massive bandwidth and RAM.
+
+**Step B: The "Pointer" Hand-off**
+Once the upload finishes, the client sends only the `fileUrl` (a string pointer) to our backend action.
+
+**Step C: Asynchronous Processing Pipeline**
+The server does not make the user wait for the AI.
+
+1.  **Immediate Feedback**: The interaction creates a `Resume` record in the DB with status `PENDING` and immediately returns `200 OK`.
+2.  **Optimistic UI**: The frontend sees the `PENDING` status and shows a "Processing" card, allowing the user to continue navigating.
+3.  **Background Worker**: The server continues processing in the background:
+    - `fetch(fileUrl)`: Downloads the file stream.
+    - `pdf-parse`: Extracts raw text buffer.
+    - `Gemini API`: Sends the text + prompt for analysis.
+    - **Final Update**: Updates the DB record to `COMPLETED` with the JSON result.
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Browser
+    participant Storage (UploadThing)
+    participant Server
+    participant DB
+    participant AI (Gemini)
+
+    User->>Browser: Selects PDF
+    Browser->>Storage: Direct Upload
+    Storage-->>Browser: Returns URL
+    Browser->>Server: Submits URL Form
+    Server->>DB: Create Record (Status: PENDING)
+    Server-->>Browser: Returns 200 OK (User sees "Processing")
+
+    par Background Task
+        Server->>Storage: Fetch File Stream
+        Server->>Server: Extract Text (pdf-parse)
+        Server->>AI: Send Prompt + Text
+        AI-->>Server: Return JSON Analysis
+        Server->>DB: Update Record (Status: COMPLETED)
+    end
+```
+
+## ![System Architecture](/public/system_architecture.png)
+
+## 🛠️ Tech Stack & Trade-offs
+
+### **Framework: React Router v7 (formerly Remix)**
+
+- **Why?** Most React frameworks (Next.js) are moving towards heavy Server Components. React Router v7 gave us the perfect balance of **Progressive Enhancement** and **Single Page App (SPA)** speed.
+- **Loader Pattern**: We fetch data in parallel with route codesplitting, eliminating "waterfalls".
+- **Form Actions**: Mutations are handled via HTML forms, meaning the app works even if JS fails or is slow to load.
+
+### **Styling: Tailwind CSS v4**
+
+- **Why v4?** The new engine is a game-changer. It compiles in milliseconds and consumes zero runtime JS.
+- **Aesthetic**: We chose **Neo-Brutalism** (high contrast, bold borders, shadows) to stand out from the "Corporate Memphis" design style typical of SaaS tools, also cause its cool.
+
+### **Storage: UploadThing (S3 Wrapper)**
+
+- **Why?** setting up AWS S3 IAM roles and Presigned URLs manually is error-prone. UploadThing provides type-safe server callbacks and way less stressful for now.
+- **Security**: We validate files types (`.pdf` only) and sizes (`4MB` limit) at the edge before the upload even starts.
+
+### **AI: Google Gemini 2.5 Flash**
+
+- **Why not OpenAI?** Gemini 2.5 Flash offers a significantly larger context window at a lower cost/latency ratio for text analysis tasks.
+- **Structured Output**: We strictly enforce `JSON` schema validation using **Zod** to ensure the AI never breaks our UI with malformed data.
+
+---
+
+## ✨ Features Breakdown
+
+### 📊 Metric-Based Scanning
+
+We don't just "read" the resume; we score it based on 4 pillars:
+
+1.  **ATS Compatibility**: Can a machine read your contact info and skills?
+2.  **Content Impact**: Do you use "Action Verbs" and "Metrics" (e.g., "Increased revenue by 40%")?
+3.  **Structure**: Is the hierarchy logical?
+4.  **Skills Gap**: (Coming soon) Comparing against live job descriptions.
+
+### 🛡️ Security First
+
+- **HTTP-Only Cookies**: Authentication tokens are never exposed to client-side JS (prevents XSS).
+- **Bcrypt Hashing**: Passwords are salted and hashed before storage.
+- **CSRF Protection**: Native to the framework built-in form handling.
+
+---
+
+## 📂 Project Structure
+
+```bash
+/app
+├── /components     # UI atoms (Neo-brutalist buttons, cards)
+├── /routes         # File-system based routing (Profile, Login, Scan)
+├── /services       # Business Logic Layer
+│   ├── gemini.server.ts      # AI Prompt Engineering & API calls
+│   ├── pdf.server.ts         # Binary stream processing
+│   └── uploadthing.server.ts # Storage configuration
+├── /utils          # Helpers & Zod Refinements
+└── root.tsx        # Global layout & Context providers
+```
+
+---
 
 ## 🏁 Getting Started
 
 ### Prerequisites
 
-- Node.js (v20 or later recommended)
-- A Google Cloud API Key with access to Gemini API.
+- Node.js v20+
+- NPM or PNPM
 
 ### Installation
 
-1. **Clone the repository**
+1.  **Clone the Repository**
 
-   ```bash
-   git clone <repository-url>
-   cd AI-resume-analyzer
-   ```
+    ```bash
+    git clone https://github.com/jenacodes/AI-resume-analyzer.git
+    cd AI-resume-analyzer
+    ```
 
-2. **Install dependencies**
+2.  **Install Dependencies**
 
-   ```bash
-   npm install
-   ```
+    ```bash
+    npm install
+    ```
 
-3. **Configure Environment Variables**
-   Create a `.env` file in the root directory and add the following:
+3.  **Database Init**
+    We use SQLite for local dev. This command creates the `dev.db` file.
 
-   ```env
-   DATABASE_URL="file:./dev.db"
-   GEMINI_API_KEY="your_gemini_api_key_here"
-   SESSION_SECRET="your_super_secret_session_key"
-   ```
+    ```bash
+    npx prisma db push
+    ```
 
-4. **Setup Database**
-   Initialize the SQLite database with Prisma:
+4.  **Environment Configuration**
+    Create a `.env.local` file:
 
-   ```bash
-   npx prisma db push
-   ```
+    ```env
+    # Database (SQLite)
+    DATABASE_URL="file:./dev.db"
 
-5. **Run the Application**
-   Start the development server:
-   ```bash
-   npm run dev
-   ```
-   The app will be available at [http://localhost:5173](http://localhost:5173).
+    # AI (Google AI Studio)
+    GEMINI_API_KEY="AIzaSy..."
+
+    # File Storage (UploadThing)
+    UPLOADTHING_SECRET="sk_live..."
+    UPLOADTHING_APP_ID="your_app_id"
+
+    # Auth
+    SESSION_SECRET="super-secret-key"
+    ```
+
+5.  **Run Development Server**
+    ```bash
+    npm run dev
+    ```
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+MIT © Jenacodes
