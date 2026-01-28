@@ -177,22 +177,10 @@ export default function Settings() {
                   color="text-black"
                 >
                   <ToggleItem
-                    label="Email Notifications"
-                    description="Receive analysis results via email"
-                    checked={settings.emailNotifs}
-                    onChange={() => toggle("emailNotifs")}
-                  />
-                  <ToggleItem
                     label="Marketing Emails"
                     description="Receive product updates and tips"
                     checked={settings.marketingEmails}
                     onChange={() => toggle("marketingEmails")}
-                  />
-                  <ToggleItem
-                    label="Push Notifications"
-                    description="Receive notifications on your device"
-                    checked={settings.pushNotifs}
-                    onChange={() => toggle("pushNotifs")}
                   />
                 </ToggleSection>
 

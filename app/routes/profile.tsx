@@ -24,7 +24,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   // Fetch user
   const user = await db.user.findUnique({
     where: { id: userId },
-    select: { name: true, email: true },
+    select: { name: true, email: true, bio: true, location: true },
   });
 
   // Check if user exists

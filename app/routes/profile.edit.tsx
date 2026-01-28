@@ -1,8 +1,14 @@
 import type { Route } from "./+types/profile.edit";
 import { Sidebar } from "../components/Sidebar";
 import { ArrowLeft, Upload, Save, X } from "lucide-react";
-import { Link, redirect } from "react-router";
-import { useState } from "react";
+import {
+  Link,
+  redirect,
+  Form,
+  useNavigation,
+  useActionData,
+} from "react-router";
+import { useEffect, useState } from "react";
 import { db } from "~/db.server";
 
 import { getSession } from "~/sessions";
@@ -17,7 +23,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   const user = await db.user.findUnique({
     where: { id: userId },
-    select: { name: true, email: true },
+    select: { name: true, email: true, bio: true, location: true },
   });
 
   if (!user) {
@@ -33,22 +39,54 @@ export function meta({}: Route.MetaArgs) {
     { name: "description", content: "Update your profile information" },
   ];
 }
+export async function action({ request }: Route.ActionArgs) {
+  const session = await getSession(request.headers.get("Cookie"));
+  const userId = session.get("userId");
+
+  if (!userId) {
+    throw redirect("/login");
+  }
+
+  const formData = await request.formData();
+  const name = formData.get("name") as string;
+  const email = formData.get("email") as string;
+  const bio = formData.get("bio") as string;
+  const location = formData.get("location") as string;
+
+  // Basic validation could go here
+
+  await db.user.update({
+    where: { id: userId },
+    data: {
+      name,
+      email,
+      bio,
+      location,
+    },
+  });
+
+  return { success: true };
+}
 
 export default function EditProfile({ loaderData }: Route.ComponentProps) {
   const { user } = loaderData;
+  const navigation = useNavigation();
+  const actionData = useActionData<{ success?: boolean }>();
+  const isSubmitting = navigation.state === "submitting";
 
   const [formData, setFormData] = useState({
     name: user.name || "",
     email: user.email,
-    bio: "Senior Software Engineer specializing in React and AI technologies.", // Placeholder as we don't have bio in DB yet
-    location: "San Francisco, CA", // Placeholder
+    bio: user.bio || "",
+    location: user.location || "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle form submission
-    console.log("Form submitted:", formData);
-  };
+  useEffect(() => {
+    if (actionData?.success) {
+      // Optional: Show success toast or redirect
+      // For now, we just stay here as the user might want to continue editing
+    }
+  }, [actionData]);
 
   return (
     <div className="min-h-screen bg-neo-bg text-black font-sans selection:bg-neo-primary selection:text-white flex">
@@ -76,9 +114,15 @@ export default function EditProfile({ loaderData }: Route.ComponentProps) {
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <Form method="post" className="space-y-6">
+              {actionData?.success && (
+                <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4">
+                  <p className="font-bold">Success</p>
+                  <p>Profile updated successfully.</p>
+                </div>
+              )}
               {/* Avatar Upload */}
-              <div className="bg-white border-4 border-black shadow-neo p-6 md:p-8">
+              {/* <div className="bg-white border-4 border-black shadow-neo p-6 md:p-8">
                 <h3 className="text-xl font-black uppercase text-black mb-6">
                   Profile Photo
                 </h3>
@@ -110,7 +154,7 @@ export default function EditProfile({ loaderData }: Route.ComponentProps) {
                     </p>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Personal Information */}
               <div className="bg-white border-4 border-black shadow-neo p-6 md:p-8 space-y-6">
@@ -131,6 +175,7 @@ export default function EditProfile({ loaderData }: Route.ComponentProps) {
                       }
                       className="w-full bg-white border-4 border-black p-3 text-black font-bold placeholder:text-gray-400 focus:outline-none focus:shadow-neo transition-all"
                       placeholder="Enter your name"
+                      name="name"
                     />
                   </div>
 
@@ -146,6 +191,7 @@ export default function EditProfile({ loaderData }: Route.ComponentProps) {
                       }
                       className="w-full bg-white border-4 border-black p-3 text-black font-bold placeholder:text-gray-400 focus:outline-none focus:shadow-neo transition-all"
                       placeholder="Enter your email"
+                      name="email"
                     />
                   </div>
                 </div>
@@ -162,6 +208,7 @@ export default function EditProfile({ loaderData }: Route.ComponentProps) {
                     rows={4}
                     className="w-full bg-white border-4 border-black p-3 text-black font-bold placeholder:text-gray-400 focus:outline-none focus:shadow-neo transition-all resize-none"
                     placeholder="Tell us about yourself"
+                    name="bio"
                   />
                 </div>
 
@@ -177,6 +224,7 @@ export default function EditProfile({ loaderData }: Route.ComponentProps) {
                     }
                     className="w-full bg-white border-4 border-black p-3 text-black font-bold placeholder:text-gray-400 focus:outline-none focus:shadow-neo transition-all"
                     placeholder="City, Country"
+                    name="location"
                   />
                 </div>
               </div>
@@ -192,13 +240,14 @@ export default function EditProfile({ loaderData }: Route.ComponentProps) {
                 </Link>
                 <button
                   type="submit"
-                  className="flex items-center justify-center gap-2 px-6 py-3 bg-neo-primary border-4 border-black shadow-neo hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all text-white font-bold uppercase"
+                  disabled={isSubmitting}
+                  className="flex items-center justify-center gap-2 px-6 py-3 bg-neo-primary border-4 border-black shadow-neo hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all text-white font-bold uppercase disabled:opacity-50"
                 >
                   <Save className="w-5 h-5" />
-                  Save Changes
+                  {isSubmitting ? "Saving..." : "Save Changes"}
                 </button>
               </div>
-            </form>
+            </Form>
           </div>
         </div>
       </main>

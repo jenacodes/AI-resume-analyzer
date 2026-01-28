@@ -297,7 +297,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                 )}
               </div>
 
-              <div className="bg-neo-accent border-4 border-black shadow-neo p-6 relative overflow-hidden">
+              {/* <div className="bg-neo-accent border-4 border-black shadow-neo p-6 relative overflow-hidden">
                 <div className="relative z-10">
                   <h3 className="text-xl font-black uppercase mb-2">
                     Pro Feature
@@ -309,7 +309,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                     Upgrade to Pro
                   </button>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
