@@ -16,6 +16,8 @@ model User {
   updatedAt    DateTime @updatedAt
   bio          String?
   location     String?
+  marketingEmails Boolean @default(false)
+  twoFactorEnabled Boolean @default(false)
 
   resumes Resume[]
 }

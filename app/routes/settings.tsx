@@ -9,18 +9,82 @@ import {
   Download,
   ChevronRight,
 } from "lucide-react";
-import { useState } from "react";
 import Navbar from "~/components/Navbar";
 
-import { getSession } from "~/sessions";
-import { redirect } from "react-router";
+import { getSession, destroySession } from "~/sessions";
+import { redirect, useFetcher } from "react-router";
+
+import { db } from "~/db.server";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
-  if (!session.has("userId")) {
+  const userId = session.get("userId");
+
+  if (!userId) {
     throw redirect("/login");
   }
-  return null;
+
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: {
+      email: true,
+      marketingEmails: true,
+      twoFactorEnabled: true,
+    },
+  });
+
+  if (!user) {
+    throw redirect("/login");
+  }
+
+  return { user };
+}
+
+export async function action({ request }: Route.ActionArgs) {
+  const session = await getSession(request.headers.get("Cookie"));
+  const userId = session.get("userId");
+
+  if (!userId) {
+    throw redirect("/login");
+  }
+
+  const formData = await request.formData();
+  const intent = formData.get("intent");
+
+  if (intent === "toggleMarketing") {
+    const marketingEmails = formData.get("value") === "true";
+    await db.user.update({
+      where: { id: userId },
+      data: { marketingEmails },
+    });
+    return { success: true };
+  }
+
+  if (intent === "toggleTwoFactor") {
+    const twoFactorEnabled = formData.get("value") === "true";
+    await db.user.update({
+      where: { id: userId },
+      data: { twoFactorEnabled },
+    });
+    return { success: true };
+  }
+
+  // Placeholder for delete account
+  if (intent === "deleteAccount") {
+    await db.user.delete({
+      where: { id: userId },
+    });
+
+    // Destroy session and redirect
+    const newSession = await getSession(request.headers.get("Cookie"));
+    return redirect("/", {
+      headers: {
+        "Set-Cookie": await destroySession(newSession),
+      },
+    });
+  }
+
+  return { success: false };
 }
 
 export function meta({}: Route.MetaArgs) {
@@ -64,49 +128,45 @@ function ToggleSection({
 interface ToggleItemProps {
   label: string;
   description: string;
+  name: string;
   checked: boolean;
-  onChange: () => void;
 }
 
-function ToggleItem({
-  label,
-  description,
-  checked,
-  onChange,
-}: ToggleItemProps) {
+function ToggleItem({ label, description, name, checked }: ToggleItemProps) {
+  const fetcher = useFetcher();
+  const isOptimistic = fetcher.formData?.has("value");
+  const isChecked = isOptimistic
+    ? fetcher.formData?.get("value") === "true"
+    : checked;
+
   return (
     <div className="flex items-center justify-between">
       <div>
         <p className="text-black font-bold text-lg uppercase">{label}</p>
         <p className="text-sm text-gray-600 font-medium">{description}</p>
       </div>
-      <button
-        onClick={onChange}
-        className={`w-14 h-8 border-4 border-black transition-colors relative ${
-          checked ? "bg-neo-primary" : "bg-gray-200"
-        }`}
-      >
-        <div
-          className={`absolute top-[-4px] left-[-4px] w-6 h-8 bg-black border-2 border-white transition-transform ${
-            checked ? "translate-x-6" : "translate-x-0"
+      <fetcher.Form method="post">
+        <input type="hidden" name="intent" value={name} />
+        <input type="hidden" name="value" value={(!isChecked).toString()} />
+        <button
+          type="submit"
+          className={`w-14 h-8 border-4 border-black transition-colors relative ${
+            isChecked ? "bg-neo-primary" : "bg-gray-200"
           }`}
-        />
-      </button>
+        >
+          <div
+            className={`absolute top-[-4px] left-[-4px] w-6 h-8 bg-black border-2 border-white transition-transform ${
+              isChecked ? "translate-x-6" : "translate-x-0"
+            }`}
+          />
+        </button>
+      </fetcher.Form>
     </div>
   );
 }
 
-export default function Settings() {
-  const [settings, setSettings] = useState({
-    emailNotifs: true,
-    marketingEmails: false,
-    pushNotifs: true,
-    twoFactor: false,
-  });
-
-  const toggle = (key: keyof typeof settings) => {
-    setSettings((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
+export default function Settings({ loaderData }: Route.ComponentProps) {
+  const { user } = loaderData;
 
   return (
     <>
@@ -144,7 +204,7 @@ export default function Settings() {
                           Email Address
                         </p>
                         <p className="text-sm text-gray-600 font-bold">
-                          jena@example.com
+                          {user.email}
                         </p>
                       </div>
                     </div>
@@ -179,8 +239,8 @@ export default function Settings() {
                   <ToggleItem
                     label="Marketing Emails"
                     description="Receive product updates and tips"
-                    checked={settings.marketingEmails}
-                    onChange={() => toggle("marketingEmails")}
+                    name="toggleMarketing"
+                    checked={user.marketingEmails}
                   />
                 </ToggleSection>
 
@@ -194,14 +254,17 @@ export default function Settings() {
                   <ToggleItem
                     label="Two-Factor Authentication"
                     description="Add an extra layer of security"
-                    checked={settings.twoFactor}
-                    onChange={() => toggle("twoFactor")}
+                    name="toggleTwoFactor"
+                    checked={user.twoFactorEnabled}
                   />
                   <div className="pt-4 border-t-4 border-black">
-                    <button className="flex items-center gap-2 text-black hover:text-neo-primary transition text-sm font-black uppercase">
+                    <a
+                      href="/api/download-data"
+                      className="flex items-center gap-2 text-black hover:text-neo-primary transition text-sm font-black uppercase"
+                    >
                       <Download className="w-4 h-4" />
                       Download My Data
-                    </button>
+                    </a>
                   </div>
                 </ToggleSection>
 
@@ -216,9 +279,30 @@ export default function Settings() {
                       Once you delete your account, there is no going back.
                       Please be certain.
                     </p>
-                    <button className="px-6 py-3 bg-red-500 border-4 border-black text-white font-black uppercase shadow-neo-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">
-                      Delete Account
-                    </button>
+                    <form
+                      method="post"
+                      onSubmit={(e) => {
+                        if (
+                          !confirm(
+                            "Are you sure you want to delete your account? This action cannot be undone.",
+                          )
+                        ) {
+                          e.preventDefault();
+                        }
+                      }}
+                    >
+                      <input
+                        type="hidden"
+                        name="intent"
+                        value="deleteAccount"
+                      />
+                      <button
+                        type="submit"
+                        className="px-6 py-3 bg-red-500 border-4 border-black text-white font-black uppercase shadow-neo-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
+                      >
+                        Delete Account
+                      </button>
+                    </form>
                   </div>
                 </div>
               </div>
