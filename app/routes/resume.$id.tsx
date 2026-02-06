@@ -80,12 +80,12 @@ export default function ResumeDetail({ loaderData }: Route.ComponentProps) {
                 <ArrowLeft className="w-5 h-5" />
               </Link>
               <div>
-                <h1 className="font-black text-2xl uppercase tracking-tight text-black">
+                <h1 className="font-black text-xs uppercase text-black">
                   {resume.title === "Untitled Resume"
                     ? resume.name
                     : resume.title}
                 </h1>
-                <p className="text-sm font-bold text-gray-600 uppercase">
+                <p className="text-xs font-bold text-gray-600 uppercase">
                   {resume.company}
                 </p>
               </div>
