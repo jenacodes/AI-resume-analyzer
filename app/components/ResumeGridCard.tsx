@@ -4,7 +4,7 @@ import type { Resume } from "@prisma/client";
 import type { AnalysisResult } from "~/services/gemini.server";
 
 interface ResumeWithFeedback extends Resume {
-  feedback: AnalysisResult;
+  feedback: AnalysisResult | null;
 }
 
 interface ResumeGridCardProps {
@@ -35,7 +35,7 @@ export function ResumeGridCard({ resume }: ResumeGridCardProps) {
 
         {/* Score Badge */}
         <div className="absolute top-0 right-0 p-2 bg-black text-white font-black text-xl border-l-4 border-b-4 border-white">
-          {resume.feedback.overallScore}
+          {resume.feedback?.overallScore ?? "?"}
         </div>
       </div>
 
@@ -49,7 +49,7 @@ export function ResumeGridCard({ resume }: ResumeGridCardProps) {
             <Building2 className="w-4 h-4 text-black" />
             <span>{resume.company || "No company"}</span>
             <div className="text-xs font-bold text-green-600 mt-1">
-              {resume.feedback.estimatedSalary}
+              {resume.feedback?.estimatedSalary ?? "N/A"}
             </div>
           </div>
         </div>

@@ -77,7 +77,7 @@ export async function action({ request }: Route.ActionArgs) {
 
     // Destroy session and redirect
     const newSession = await getSession(request.headers.get("Cookie"));
-    return redirect("/", {
+    return redirect("/login", {
       headers: {
         "Set-Cookie": await destroySession(newSession),
       },
