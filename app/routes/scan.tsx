@@ -2,12 +2,7 @@ import type { Route } from "./+types/scan";
 import { Sidebar } from "../components/Sidebar";
 import { UploadZone } from "../components/UploadZone";
 import { getFriendlyErrorMessage } from "~/utils/errors";
-import {
-  redirect,
-  Form,
-  useNavigation,
-  useActionData,
-} from "react-router";
+import { redirect, Form, useNavigation, useActionData } from "react-router";
 import Navbar from "~/components/Navbar";
 import { getSession } from "~/sessions";
 import { useState } from "react";

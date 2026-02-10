@@ -18,6 +18,7 @@ import { getSession } from "~/sessions";
 import { db } from "~/db.server";
 import type { AnalysisResult } from "~/services/gemini.server";
 import { createPendingResume } from "~/services/scan.server";
+import { getFriendlyErrorMessage } from "~/utils/errors";
 
 export async function loader({ request }: Route.LoaderArgs) {
   //1. Authenticate the user
@@ -26,6 +27,15 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   //check if no user, kick them out
   if (!userId) {
+    throw redirect("/login");
+  }
+
+  const user = await db.user.findUnique({
+    where: { id: userId },
+  });
+
+  // Check if user exists
+  if (!user) {
     throw redirect("/login");
   }
 
@@ -73,7 +83,7 @@ export async function action({ request }: Route.ActionArgs) {
     return redirect(`/resume/${resume.id}`);
   } catch (error: any) {
     console.error("Home Action Error:", error);
-    return { error: error.message || "Something went wrong." };
+    return { error: getFriendlyErrorMessage(error) };
   }
 }
 
