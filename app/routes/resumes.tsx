@@ -27,7 +27,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const resumes = resumeData.map((resume) => ({
     ...resume,
-    feedback: JSON.parse(resume.analysisJson || "{}") as AnalysisResult,
+    feedback: resume.analysisJson as AnalysisResult,
   }));
 
   return { resumes };

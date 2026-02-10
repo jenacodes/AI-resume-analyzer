@@ -49,7 +49,7 @@ export async function action({ request }: Route.ActionArgs) {
 
   const formData = await request.formData();
   const name = formData.get("name") as string;
-  const email = formData.get("email") as string;
+  // const email = formData.get("email") as string;
   const bio = formData.get("bio") as string;
   const location = formData.get("location") as string;
 
@@ -59,7 +59,7 @@ export async function action({ request }: Route.ActionArgs) {
     where: { id: userId },
     data: {
       name,
-      email,
+      // email is handled in settings
       bio,
       location,
     },
@@ -121,41 +121,6 @@ export default function EditProfile({ loaderData }: Route.ComponentProps) {
                   <p>Profile updated successfully.</p>
                 </div>
               )}
-              {/* Avatar Upload */}
-              {/* <div className="bg-white border-4 border-black shadow-neo p-6 md:p-8">
-                <h3 className="text-xl font-black uppercase text-black mb-6">
-                  Profile Photo
-                </h3>
-                <div className="flex flex-col md:flex-row items-center gap-6">
-                  <div className="relative group">
-                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-full p-1 bg-neo-primary border-4 border-black">
-                      <img
-                        src="/images/jena.png"
-                        alt="Profile"
-                        className="w-full h-full rounded-full object-cover border-2 border-black"
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      className="absolute inset-0 rounded-full bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <Upload className="w-6 h-6 text-white" />
-                    </button>
-                  </div>
-                  <div className="text-center md:text-left">
-                    <button
-                      type="button"
-                      className="px-6 py-3 bg-neo-secondary border-4 border-black shadow-neo-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all text-white font-bold uppercase mb-2"
-                    >
-                      Upload New Photo
-                    </button>
-                    <p className="text-xs font-bold text-gray-600 uppercase">
-                      JPG, PNG or GIF. Max size 2MB.
-                    </p>
-                  </div>
-                </div>
-              </div> */}
-
               {/* Personal Information */}
               <div className="bg-white border-4 border-black shadow-neo p-6 md:p-8 space-y-6">
                 <h3 className="text-xl font-black uppercase text-black">
@@ -183,16 +148,24 @@ export default function EditProfile({ loaderData }: Route.ComponentProps) {
                     <label className="block text-sm font-bold text-black uppercase mb-2">
                       Email Address
                     </label>
-                    <input
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) =>
-                        setFormData({ ...formData, email: e.target.value })
-                      }
-                      className="w-full bg-white border-4 border-black p-3 text-black font-bold placeholder:text-gray-400 focus:outline-none focus:shadow-neo transition-all"
-                      placeholder="Enter your email"
-                      name="email"
-                    />
+                    <div className="relative">
+                      <input
+                        type="email"
+                        value={formData.email}
+                        readOnly
+                        disabled
+                        className="w-full bg-gray-100 border-4 border-black p-3 text-gray-500 font-bold cursor-not-allowed"
+                        placeholder="Enter your email"
+                      />
+                      <div className="absolute right-3 top-3">
+                        <Link
+                          to="/settings/email"
+                          className="text-xs font-black text-neo-primary uppercase hover:underline"
+                        >
+                          Change
+                        </Link>
+                      </div>
+                    </div>
                   </div>
                 </div>
 

@@ -1,6 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 import { createRequire } from "module";
+import { data } from "react-router";
 
 // 1. Create a "require" function that acts like we are in Old Node.js
 const require = createRequire(import.meta.url);
@@ -18,9 +19,10 @@ export async function extractTextFromBuffer(buffer: Buffer): Promise<string> {
     if (!data.text || data.text.trim().length === 0) {
       //Throw this error to the frontend
       throw new Error(
-        "This PDF contains no readable text. It might be a scanned image."
+        "This PDF contains no readable text. It might be a scanned image.",
       );
     }
+    console.log("Extracted text:", data.text);
     return data.text;
   } catch (error: any) {
     console.error("Error extracting text from PDF:", error);

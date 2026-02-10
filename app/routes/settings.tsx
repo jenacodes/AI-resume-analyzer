@@ -12,7 +12,7 @@ import {
 import Navbar from "~/components/Navbar";
 
 import { getSession, destroySession } from "~/sessions";
-import { redirect, useFetcher } from "react-router";
+import { redirect, useFetcher, Link } from "react-router";
 
 import { db } from "~/db.server";
 
@@ -194,7 +194,10 @@ export default function Settings({ loaderData }: Route.ComponentProps) {
                   icon={Shield}
                   color="text-black"
                 >
-                  <button className="w-full flex items-center justify-between p-4 border-4 border-black bg-white shadow-neo-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all group">
+                  <Link
+                    to="/settings/email"
+                    className="w-full flex items-center justify-between p-4 border-4 border-black bg-white shadow-neo-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all group"
+                  >
                     <div className="flex items-center gap-4">
                       <div className="p-2 bg-neo-secondary border-2 border-black text-white">
                         <Mail className="w-5 h-5" />
@@ -209,9 +212,12 @@ export default function Settings({ loaderData }: Route.ComponentProps) {
                       </div>
                     </div>
                     <ChevronRight className="w-6 h-6 text-black group-hover:translate-x-1 transition-transform" />
-                  </button>
+                  </Link>
 
-                  <button className="w-full flex items-center justify-between p-4 border-4 border-black bg-white shadow-neo-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all group">
+                  <Link
+                    to="/settings/password"
+                    className="w-full flex items-center justify-between p-4 border-4 border-black bg-white shadow-neo-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all group"
+                  >
                     <div className="flex items-center gap-4">
                       <div className="p-2 bg-neo-accent border-2 border-black text-black">
                         <Lock className="w-5 h-5" />
@@ -221,12 +227,12 @@ export default function Settings({ loaderData }: Route.ComponentProps) {
                           Change Password
                         </p>
                         <p className="text-sm text-gray-600 font-bold">
-                          Last updated 3 months ago
+                          Update your password
                         </p>
                       </div>
                     </div>
                     <ChevronRight className="w-6 h-6 text-black group-hover:translate-x-1 transition-transform" />
-                  </button>
+                  </Link>
                 </ToggleSection>
 
                 {/* Notifications */}

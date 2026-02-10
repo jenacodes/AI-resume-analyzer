@@ -7,33 +7,40 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum ResumeStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
 model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  passwordHash String
-  name         String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  bio          String?
-  location     String?
-  marketingEmails Boolean @default(false)
-  twoFactorEnabled Boolean @default(false)
+  id               String   @id @default(uuid())
+  email            String   @unique
+  passwordHash     String
+  name             String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  bio              String?
+  location         String?
+  marketingEmails  Boolean  @default(false)
+  twoFactorEnabled Boolean  @default(false)
 
   resumes Resume[]
 }
 
 model Resume {
-  id           String   @id @default(uuid())
+  id           String       @id @default(uuid())
   userId       String
-  name         String   @default("My Resume")
-  title        String   // e.g. "Frontend Developer"
-  company      String?  // e.g. "Google"
-  filePath     String   // Path to PDF on disk
-  description  String?  // Job description
-  analysisJson String?  // JSON string of AI analysis
-  status       String   @default("PENDING") // PENDING, PROCESSING, COMPLETED, FAILED
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  name         String       @default("My Resume")
+  title        String
+  company      String?
+  fileUrl      String       
+  description  String?
+  analysisJson Json?        
+  status       ResumeStatus @default(PENDING) 
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

@@ -14,4 +14,6 @@ export default [
   route("cover-letter", "routes/cover-letter.tsx"),
   route("api/uploadthing", "routes/api.uploadthing.ts"),
   route("/api/download-data", "routes/api.download-data.ts"),
+  route("settings/email", "routes/settings.email.tsx"),
+  route("settings/password", "routes/settings.password.tsx"),
 ] satisfies RouteConfig;

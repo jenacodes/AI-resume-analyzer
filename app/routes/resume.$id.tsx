@@ -31,7 +31,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   // Parse the JSON string back to object
   const feedback = resume.analysisJson
-    ? (JSON.parse(resume.analysisJson) as AnalysisResult)
+    ? (resume.analysisJson as AnalysisResult)
     : null;
 
   return { resume, feedback };
@@ -80,12 +80,12 @@ export default function ResumeDetail({ loaderData }: Route.ComponentProps) {
                 <ArrowLeft className="w-5 h-5" />
               </Link>
               <div>
-                <h1 className="font-black text-xs uppercase text-black">
+                <h1 className="font-black text-xs lg:text-base uppercase text-black">
                   {resume.title === "Untitled Resume"
                     ? resume.name
                     : resume.title}
                 </h1>
-                <p className="text-xs font-bold text-gray-600 uppercase">
+                <p className="text-xs lg:text-base font-bold text-gray-600 uppercase">
                   {resume.company}
                 </p>
               </div>
@@ -107,7 +107,7 @@ export default function ResumeDetail({ loaderData }: Route.ComponentProps) {
           <div className="flex-1 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden">
             {/* Left Panel: PDF Viewer */}
             <div className="w-full md:w-1/2 h-96 md:h-full border-b-4 md:border-b-0 md:border-r-4 border-black bg-gray-100 shrink-0">
-              <PDFViewer url={resume.filePath} />
+              <PDFViewer url={resume.fileUrl} />
             </div>
 
             {/* Right Panel: Analysis */}

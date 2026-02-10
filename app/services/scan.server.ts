@@ -10,6 +10,9 @@ export async function createPendingResume(
   company?: string,
   description?: string,
 ) {
+  if (!fileUrl.startsWith("https://utfs.io/")) {
+    throw new Error("Invalid file source");
+  }
   // FAST PATH: Just create the DB record
   return db.resume.create({
     data: {
@@ -18,7 +21,7 @@ export async function createPendingResume(
       title: title || fileName,
       company: company || "AI Analyzed",
       description: description, // Save description
-      filePath: fileUrl,
+      fileUrl: fileUrl,
       status: "PENDING", // Start as PENDING
     },
   });
@@ -40,7 +43,7 @@ export async function performResumeAnalysis(resumeId: string) {
 
     // 2. Fetch File
     console.time("Fetch File");
-    const response = await fetch(resume.filePath);
+    const response = await fetch(resume.fileUrl);
     if (!response.ok) throw new Error("Failed to download file");
     const arrayBuffer = await response.arrayBuffer();
     const fileBuffer = Buffer.from(arrayBuffer);
@@ -66,7 +69,7 @@ export async function performResumeAnalysis(resumeId: string) {
       where: { id: resumeId },
       data: {
         status: "COMPLETED",
-        analysisJson: JSON.stringify(analysisResult),
+        analysisJson: analysisResult,
       },
     });
 

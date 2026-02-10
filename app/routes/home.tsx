@@ -39,7 +39,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const resumesWithFeedback = resumes.map((resume) => ({
     ...resume,
     feedback: resume.analysisJson
-      ? (JSON.parse(resume.analysisJson) as AnalysisResult)
+      ? (resume.analysisJson as AnalysisResult)
       : null, // Handle pending analysis
   }));
 

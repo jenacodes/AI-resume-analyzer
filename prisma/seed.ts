@@ -100,7 +100,7 @@ async function main() {
       name: "Software Engineer Resume_Final.pdf",
       title: "Senior Frontend Developer",
       company: "Tech Corp",
-      filePath: "https://example.com/resume.pdf", // Mock URL
+      fileUrl: "https://example.com/resume.pdf", // Mock URL
       analysisJson: JSON.stringify(sampleAnalysis),
     },
   });
@@ -111,7 +111,7 @@ async function main() {
       name: "Old Resume 2024.pdf",
       title: "Frontend Developer",
       company: "Startup Inc",
-      filePath: "https://example.com/old_resume.pdf",
+      fileUrl: "https://example.com/old_resume.pdf",
       analysisJson: JSON.stringify({
         ...sampleAnalysis,
         overallScore: 65,

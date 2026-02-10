@@ -47,7 +47,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   const parsedResumes = resumes.map((r) => ({
     ...r,
-    analysis: JSON.parse(r.analysisJson || "{}") as AnalysisResult,
+    analysis: r.analysisJson as AnalysisResult,
   }));
 
   // Calculate stats
