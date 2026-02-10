@@ -22,7 +22,7 @@ export function ResumeGridCard({ resume }: ResumeGridCardProps) {
       {/* Image Preview Section */}
       <div className="relative h-48 overflow-hidden bg-gray-200 border-b-4 border-black">
         <iframe
-          src={resume.filePath}
+          src={resume.fileUrl}
           title={`${resume.title} Resume`}
           className="w-full h-full object-cover object-top grayscale group-hover:grayscale-0 transition-all duration-500"
         />

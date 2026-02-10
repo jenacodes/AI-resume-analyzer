@@ -2,7 +2,7 @@ import type { Route } from "./+types/cover-letter";
 import { Sidebar } from "../components/Sidebar";
 import { CoverLetterForm } from "../components/CoverLetterForm";
 import { CoverLetterPreview } from "../components/CoverLetterPreview";
-import { use, useState } from "react";
+import { useState } from "react";
 import Navbar from "~/components/Navbar";
 import { redirect } from "react-router";
 import { getSession } from "~/sessions";

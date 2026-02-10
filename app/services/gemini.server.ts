@@ -107,38 +107,6 @@ export async function analyzeResume(
   jobTitle: string,
   jobDesc?: string,
 ): Promise<AnalysisResult> {
-  // 3. Construct the Prompt
-  // const prompt = `
-  //   You are an expert AI Resume Analyzer and Career Coach.
-  //   Your task is to analyze a resume for the position of "${jobTitle}".
-  //   ${jobDesc ? `Job Description: "${jobDesc}"` : ""}
-
-  //   RESUME TEXT:
-  //   "${resumeText}"
-
-  //   Analyze the resume and provide a detailed report in strict JSON format.
-  //   The JSON must exactly match this structure:
-  //   {
-  //     "overallScore": number (0-100),
-  //     "estimatedSalary": string (e.g. "$80k - $100k" based on skills/exp),
-  //     "extractedSkills": string[] (list of top TECHNICAL and SOFT skills found),
-  //     "ATS": { "score": number, "tips": [{"type": "good"|"improve", "tip": string, "explanation": string}] },
-  //     "toneAndStyle": { "score": number, "tips": [...] },
-  //     "content": { "score": number, "tips": [...] },
-  //     "structure": { "score": number, "tips": [...] },
-  //     "skills": { "score": number, "tips": [...] }
-  //   }
-
-  //   CRITICAL INSTRUCTIONS:
-  //   1. Return ONLY valid JSON. Do not include markdown formatting (like \`\`\`json).
-  //   2. Be critical but constructive.
-  //   3. "ATS" checks for keywords and formatting issues.
-  //   4. "Content" checks for impact, metrics, and clarity.
-  //   5. "Structure" checks for layout, sections, and readability.
-  //   6. "estimatedSalary" should be a realistic range based on the resume's experience level and the target job title in the US market.
-  //   7. "extractedSkills" should be a simple list of key skills found in the text.
-  // `;
-
   const prompt = `
     You are an expert Senior Technical Recruiter and Hiring Manager at a top-tier tech company.
     You are reviewing a resume for the specific role of: "${jobTitle}".

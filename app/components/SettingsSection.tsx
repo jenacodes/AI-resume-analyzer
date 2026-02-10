@@ -1,4 +1,4 @@
-import { Bell, Moon, Shield, CreditCard } from "lucide-react";
+import { Shield } from "lucide-react";
 import { useState } from "react";
 
 export function SettingsSection() {

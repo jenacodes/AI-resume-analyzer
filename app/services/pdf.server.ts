@@ -22,7 +22,6 @@ export async function extractTextFromBuffer(buffer: Buffer): Promise<string> {
         "This PDF contains no readable text. It might be a scanned image.",
       );
     }
-    console.log("Extracted text:", data.text);
     return data.text;
   } catch (error: any) {
     console.error("Error extracting text from PDF:", error);

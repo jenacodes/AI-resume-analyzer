@@ -1,9 +1,8 @@
 import type { Route } from "./+types/scan";
 import { Sidebar } from "../components/Sidebar";
 import { UploadZone } from "../components/UploadZone";
-import { ArrowLeft } from "lucide-react";
+import { getFriendlyErrorMessage } from "~/utils/errors";
 import {
-  Link,
   redirect,
   Form,
   useNavigation,
@@ -51,7 +50,7 @@ export async function action({ request }: Route.ActionArgs) {
   } catch (error: any) {
     console.error("Scan failed:", error.message);
     return {
-      error: error.message || "Something went wrong during analysis.",
+      error: getFriendlyErrorMessage(error),
       values: { title, description, company },
     };
   }

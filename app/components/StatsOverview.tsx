@@ -1,5 +1,3 @@
-import { FileText, Star, Zap, TrendingUp } from "lucide-react";
-
 import type { LucideIcon } from "lucide-react";
 
 interface StatItem {

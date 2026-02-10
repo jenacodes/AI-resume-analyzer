@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import { useState } from "react";
-import { FileText, MenuIcon, X } from "lucide-react";
+import { FileText } from "lucide-react";
 import { navItems } from "../constants/navigation";
 
 const Navbar = () => {
