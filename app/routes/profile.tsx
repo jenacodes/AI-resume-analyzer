@@ -55,7 +55,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   // Calculate total score and average score
   const totalScore = parsedResumes.reduce(
-    (acc, r) => acc + (r.analysis.overallScore || 0),
+    (acc, r) => acc + (r.analysis?.overallScore || 0),
     0,
   );
   const averageScore = totalScans > 0 ? Math.round(totalScore / totalScans) : 0;
@@ -63,9 +63,9 @@ export async function loader({ request }: Route.LoaderArgs) {
   // Calculate improvement (diff between first and last scan if > 1)
   let improvement = 0;
   if (totalScans > 1) {
-    const latestScore = parsedResumes[0].analysis.overallScore || 0;
+    const latestScore = parsedResumes[0].analysis?.overallScore || 0;
     const oldestScore =
-      parsedResumes[parsedResumes.length - 1].analysis.overallScore || 0;
+      parsedResumes[parsedResumes.length - 1].analysis?.overallScore || 0;
     improvement = latestScore - oldestScore;
   }
 
@@ -79,7 +79,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     recentActivity: parsedResumes.slice(0, 3).map((r) => ({
       id: r.id,
       title: r.title,
-      score: r.analysis.overallScore,
+      score: r.analysis?.overallScore,
       date: r.createdAt.toISOString(),
     })),
   };

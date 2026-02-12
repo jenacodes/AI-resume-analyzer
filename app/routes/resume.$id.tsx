@@ -12,6 +12,9 @@ import type { AnalysisResult } from "~/services/gemini.server";
 import PDFViewer from "../components/PDFViewer";
 import { performResumeAnalysis } from "~/services/scan.server";
 
+// Increase timeout for this route because AI analysis can take >10s
+export const config = { maxDuration: 60 };
+
 export async function loader({ request, params }: Route.LoaderArgs) {
   //Checked if user is authenticated
   const session = await getSession(request.headers.get("Cookie"));

@@ -19,6 +19,15 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     throw redirect("/login");
   }
 
+  const user = await db.user.findUnique({
+    where: { id: userId },
+  });
+
+  // Check if user exists
+  if (!user) {
+    throw redirect("/login");
+  }
+
   // 2. Fetch Resumes
   const resumeData = await db.resume.findMany({
     where: { userId },

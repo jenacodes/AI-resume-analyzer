@@ -7,6 +7,28 @@ import Navbar from "~/components/Navbar";
 import { getSession } from "~/sessions";
 import { useState } from "react";
 import { createPendingResume } from "~/services/scan.server";
+import { db } from "~/db.server";
+
+//1. This runs on the server when the page is loaded
+export async function loader({ request }: Route.LoaderArgs) {
+  //1. Authenticate the user
+  const session = await getSession(request.headers.get("Cookie"));
+  const userId = session.get("userId");
+
+  //check if no user, kick them out
+  if (!userId) {
+    throw redirect("/login");
+  }
+
+  const user = await db.user.findUnique({
+    where: { id: userId },
+  });
+
+  // Check if user exists
+  if (!user) {
+    throw redirect("/login");
+  }
+}
 
 //1. This runs on the server when the form is submitted
 export async function action({ request }: Route.ActionArgs) {

@@ -6,10 +6,22 @@ import { useState } from "react";
 import Navbar from "~/components/Navbar";
 import { redirect } from "react-router";
 import { getSession } from "~/sessions";
+import { db } from "~/db.server";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
-  if (!session.has("userId")) {
+  const userId = session.get("userId");
+
+  if (!userId) {
+    throw redirect("/login");
+  }
+
+  const user = await db.user.findUnique({
+    where: { id: userId },
+  });
+
+  // Check if user exists
+  if (!user) {
     throw redirect("/login");
   }
   return null;
