@@ -15,4 +15,8 @@ export default defineConfig({
     },
   },
   dirs: ["./trigger"],
+
+  build: {
+    external: ["pdf-parse"],
+  },
 });
