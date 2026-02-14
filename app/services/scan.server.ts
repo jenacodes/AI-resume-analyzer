@@ -27,6 +27,11 @@ export async function createPendingResume(
   });
 }
 
+/**
+ * @deprecated This function's logic has been moved to the Trigger.dev background task
+ * at `trigger/analyze-resume.ts`. It is kept here for reference and test compatibility.
+ * Use `tasks.trigger("analyze-resume", { resumeId })` instead.
+ */
 export async function performResumeAnalysis(resumeId: string) {
   console.time(`Analysis for ${resumeId}`);
 

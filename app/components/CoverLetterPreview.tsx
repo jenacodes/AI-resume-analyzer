@@ -1,14 +1,16 @@
-import { Copy, Download, Check } from "lucide-react";
+import { Copy, Download, Check, Loader2 } from "lucide-react";
 import { useState } from "react";
 
 interface CoverLetterPreviewProps {
   content: string;
   setContent: (content: string) => void;
+  isGenerating?: boolean;
 }
 
 export function CoverLetterPreview({
   content,
   setContent,
+  isGenerating,
 }: CoverLetterPreviewProps) {
   const [copied, setCopied] = useState(false);
 
@@ -18,10 +20,34 @@ export function CoverLetterPreview({
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleDownload = () => {
+    const blob = new Blob([content], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "cover-letter.txt";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="h-full flex flex-col bg-white border-4 border-black shadow-neo overflow-hidden">
       <div className="flex-1 p-8 overflow-y-auto bg-white">
-        {content ? (
+        {isGenerating ? (
+          <div className="h-full flex flex-col items-center justify-center gap-4">
+            <div className="w-16 h-16 border-8 border-t-neo-primary border-gray-200 rounded-full animate-spin"></div>
+            <h3 className="text-xl font-black uppercase animate-pulse text-black">
+              Generating Cover Letter...
+            </h3>
+            <p className="font-bold text-gray-500 text-center">
+              AI is crafting your personalized cover letter.
+              <br />
+              This might take a few seconds.
+            </p>
+          </div>
+        ) : content ? (
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
@@ -37,7 +63,7 @@ export function CoverLetterPreview({
       <div className="bg-neo-bg p-4 border-t-4 border-black flex justify-end gap-3">
         <button
           onClick={handleCopy}
-          disabled={!content}
+          disabled={!content || isGenerating}
           className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-black shadow-neo-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:hover:shadow-neo-sm transition-all text-black font-bold uppercase text-sm"
         >
           {copied ? (
@@ -53,11 +79,12 @@ export function CoverLetterPreview({
           )}
         </button>
         <button
-          disabled={!content}
+          onClick={handleDownload}
+          disabled={!content || isGenerating}
           className="flex items-center gap-2 px-4 py-2 bg-black border-2 border-black text-white hover:bg-neo-primary hover:text-white hover:border-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-bold uppercase text-sm shadow-neo-sm hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
         >
           <Download className="w-4 h-4" />
-          Download PDF
+          Download
         </button>
       </div>
     </div>

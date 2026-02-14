@@ -2,11 +2,13 @@ import type { Route } from "./+types/cover-letter";
 import { Sidebar } from "../components/Sidebar";
 import { CoverLetterForm } from "../components/CoverLetterForm";
 import { CoverLetterPreview } from "../components/CoverLetterPreview";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "~/components/Navbar";
-import { redirect } from "react-router";
+import { redirect, useFetcher, useRevalidator } from "react-router";
 import { getSession } from "~/sessions";
 import { db } from "~/db.server";
+import { tasks } from "@trigger.dev/sdk";
+import type { generateCoverLetterTask } from "../../trigger/generate-cover-letter";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
@@ -20,11 +22,88 @@ export async function loader({ request }: Route.LoaderArgs) {
     where: { id: userId },
   });
 
-  // Check if user exists
   if (!user) {
     throw redirect("/login");
   }
-  return null;
+
+  // Fetch user's completed resumes for the dropdown
+  const resumes = await db.resume.findMany({
+    where: { userId, status: "COMPLETED" },
+    select: { id: true, title: true, company: true, name: true },
+    orderBy: { createdAt: "desc" },
+  });
+
+  // Fetch the most recent cover letter (if any is still generating)
+  const activeCoverLetter = await db.coverLetter.findFirst({
+    where: {
+      userId,
+      status: { in: ["PENDING", "PROCESSING"] },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  // Also fetch the latest completed one if no active one
+  const latestCompleted = !activeCoverLetter
+    ? await db.coverLetter.findFirst({
+        where: {
+          userId,
+          status: "COMPLETED",
+        },
+        orderBy: { createdAt: "desc" },
+      })
+    : null;
+
+  const coverLetter = activeCoverLetter || latestCompleted;
+
+  return { resumes, coverLetter };
+}
+
+export async function action({ request }: Route.ActionArgs) {
+  const session = await getSession(request.headers.get("Cookie"));
+  const userId = session.get("userId");
+  if (!userId) throw redirect("/login");
+
+  const formData = await request.formData();
+  const resumeId = formData.get("resumeId") as string;
+  const jobDescription = formData.get("jobDescription") as string;
+
+  if (!resumeId || !jobDescription) {
+    return { error: "Please select a resume and provide a job description." };
+  }
+
+  // Verify the resume belongs to the user
+  const resume = await db.resume.findFirst({
+    where: { id: resumeId, userId },
+  });
+
+  if (!resume) {
+    return { error: "Resume not found." };
+  }
+
+  try {
+    // Create a pending cover letter record
+    const coverLetter = await db.coverLetter.create({
+      data: {
+        userId,
+        resumeId,
+        jobDescription,
+        status: "PENDING",
+      },
+    });
+
+    // Trigger the background task
+    await tasks.trigger<typeof generateCoverLetterTask>(
+      "generate-cover-letter",
+      {
+        coverLetterId: coverLetter.id,
+      },
+    );
+
+    return { success: true, coverLetterId: coverLetter.id };
+  } catch (error: any) {
+    console.error("Cover letter generation failed:", error.message);
+    return { error: "Failed to start cover letter generation." };
+  }
 }
 
 export function meta({}: Route.MetaArgs) {
@@ -37,28 +116,58 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export default function CoverLetter() {
+export default function CoverLetter({ loaderData }: Route.ComponentProps) {
+  const { resumes, coverLetter } = loaderData;
+  const fetcher = useFetcher();
+  const revalidator = useRevalidator();
+
   const [selectedResumeId, setSelectedResumeId] = useState("");
   const [jobDescription, setJobDescription] = useState("");
-  const [generatedContent, setGeneratedContent] = useState("");
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedContent, setGeneratedContent] = useState(
+    coverLetter?.content || "",
+  );
+
+  const isGenerating =
+    fetcher.state !== "idle" ||
+    coverLetter?.status === "PENDING" ||
+    coverLetter?.status === "PROCESSING";
+
+  const hasFailed = coverLetter?.status === "FAILED";
+
+  // Update content when loader data changes (polling brings new data)
+  useEffect(() => {
+    if (coverLetter?.content) {
+      setGeneratedContent(coverLetter.content);
+    }
+  }, [coverLetter?.content]);
+
+  // Poll while generation is in progress
+  useEffect(() => {
+    if (
+      !coverLetter ||
+      coverLetter.status === "COMPLETED" ||
+      coverLetter.status === "FAILED"
+    ) {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      if (revalidator.state === "idle") {
+        revalidator.revalidate();
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [coverLetter?.status, revalidator]);
 
   const handleGenerate = () => {
-    setIsGenerating(true);
-    // Simulate AI generation delay
-    setTimeout(() => {
-      setGeneratedContent(`Dear Hiring Manager,
+    if (!selectedResumeId || !jobDescription) return;
 
-I am writing to express my strong interest in the open position at your company. With my background in software development and my passion for building innovative solutions, I believe I would be a valuable asset to your team.
-
-[This is a simulated AI response based on the job description you provided.]
-
-Thank you for considering my application. I look forward to the possibility of discussing how my skills and experience align with your needs.
-
-Sincerely,
-[Your Name]`);
-      setIsGenerating(false);
-    }, 2000);
+    setGeneratedContent("");
+    fetcher.submit(
+      { resumeId: selectedResumeId, jobDescription },
+      { method: "post" },
+    );
   };
 
   return (
@@ -83,6 +192,7 @@ Sincerely,
                 {/* Left Column - Input */}
                 <div className="bg-white border-4 border-black shadow-neo p-6 h-fit">
                   <CoverLetterForm
+                    resumes={resumes}
                     selectedResumeId={selectedResumeId}
                     setSelectedResumeId={setSelectedResumeId}
                     jobDescription={jobDescription}
@@ -90,6 +200,18 @@ Sincerely,
                     isGenerating={isGenerating}
                     onGenerate={handleGenerate}
                   />
+
+                  {fetcher.data?.error && (
+                    <div className="mt-4 bg-red-500 text-white p-3 border-4 border-black shadow-neo font-bold text-center">
+                      {fetcher.data.error}
+                    </div>
+                  )}
+
+                  {hasFailed && (
+                    <div className="mt-4 bg-red-500 text-white p-3 border-4 border-black shadow-neo font-bold text-center">
+                      Generation failed. Please try again.
+                    </div>
+                  )}
                 </div>
 
                 {/* Right Column - Output */}
@@ -97,6 +219,7 @@ Sincerely,
                   <CoverLetterPreview
                     content={generatedContent}
                     setContent={setGeneratedContent}
+                    isGenerating={isGenerating}
                   />
                 </div>
               </div>

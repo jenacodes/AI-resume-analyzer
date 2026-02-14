@@ -7,3 +7,6 @@
 .env.local
 .env
 docs/
+
+# Trigger.dev
+.trigger

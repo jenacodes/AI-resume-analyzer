@@ -1,7 +1,14 @@
 import { FileText, Briefcase, Sparkles } from "lucide-react";
-import { resumes } from "../../constants";
+
+interface ResumeOption {
+  id: string;
+  title: string;
+  company: string | null;
+  name: string;
+}
 
 interface CoverLetterFormProps {
+  resumes: ResumeOption[];
   selectedResumeId: string;
   setSelectedResumeId: (id: string) => void;
   jobDescription: string;
@@ -11,6 +18,7 @@ interface CoverLetterFormProps {
 }
 
 export function CoverLetterForm({
+  resumes,
   selectedResumeId,
   setSelectedResumeId,
   jobDescription,
@@ -36,7 +44,8 @@ export function CoverLetterForm({
             </option>
             {resumes.map((resume) => (
               <option key={resume.id} value={resume.id}>
-                {resume.jobTitle} - {resume.companyName}
+                {resume.title}
+                {resume.company ? ` - ${resume.company}` : ""}
               </option>
             ))}
           </select>
@@ -56,6 +65,11 @@ export function CoverLetterForm({
             </svg>
           </div>
         </div>
+        {resumes.length === 0 && (
+          <p className="text-sm font-bold text-gray-500">
+            No analyzed resumes found. Upload and analyze a resume first!
+          </p>
+        )}
       </div>
 
       <div className="space-y-2">

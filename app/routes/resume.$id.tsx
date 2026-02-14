@@ -2,7 +2,7 @@ import type { Route } from "./+types/resume.$id";
 import { Sidebar } from "../components/Sidebar";
 import { AnalysisPanel } from "../components/AnalysisPanel";
 import { ArrowLeft } from "lucide-react";
-import { Link, redirect, useFetcher } from "react-router";
+import { Link, redirect, useFetcher, useRevalidator } from "react-router";
 import Navbar from "../components/Navbar";
 import { useEffect } from "react";
 
@@ -10,11 +10,10 @@ import { getSession } from "~/sessions";
 import { db } from "~/db.server";
 import type { AnalysisResult } from "~/services/gemini.server";
 import PDFViewer from "../components/PDFViewer";
-import { performResumeAnalysis } from "~/services/scan.server";
+import { tasks } from "@trigger.dev/sdk";
+import type { analyzeResumeTask } from "../../trigger/analyze-resume";
 
-// Increase timeout for this route because AI analysis can take >10s
-export const config = { maxDuration: 60 };
-
+//1. This runs and fetches
 export async function loader({ request, params }: Route.LoaderArgs) {
   //Checked if user is authenticated
   const session = await getSession(request.headers.get("Cookie"));
@@ -42,15 +41,21 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
 export async function action({ params }: Route.ActionArgs) {
   if (!params.id) throw new Error("Resume ID is required");
-  await performResumeAnalysis(params.id);
+
+  // Fire-and-forget: Trigger.dev handles execution in the background
+  await tasks.trigger<typeof analyzeResumeTask>("analyze-resume", {
+    resumeId: params.id,
+  });
+
   return { success: true };
 }
 
 export default function ResumeDetail({ loaderData }: Route.ComponentProps) {
   const { resume, feedback } = loaderData;
   const fetcher = useFetcher();
+  const revalidator = useRevalidator();
 
-  // Trigger analysis if pending
+  // Trigger the background analysis task if the resume is still PENDING
   useEffect(() => {
     if (
       resume.status === "PENDING" &&
@@ -60,6 +65,20 @@ export default function ResumeDetail({ loaderData }: Route.ComponentProps) {
       fetcher.submit(null, { method: "post" });
     }
   }, [resume.status, fetcher]);
+
+  // Poll every 3 seconds while analysis is in progress
+  // so the UI auto-updates when the background task completes
+  useEffect(() => {
+    if (resume.status === "COMPLETED" || resume.status === "FAILED") return;
+
+    const interval = setInterval(() => {
+      if (revalidator.state === "idle") {
+        revalidator.revalidate();
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [resume.status, revalidator]);
 
   const isAnalyzing =
     resume.status === "PENDING" ||
