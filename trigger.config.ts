@@ -1,4 +1,5 @@
 import { defineConfig } from "@trigger.dev/sdk";
+import { additionalPackages } from "@trigger.dev/build/extensions/core";
 
 export default defineConfig({
   project: "proj_azvfbfsgvjwlclgxgihg", // project ID
@@ -14,9 +15,9 @@ export default defineConfig({
       factor: 2,
     },
   },
-  dirs: ["./trigger"],
-
   build: {
     external: ["pdf-parse"],
+    extensions: [additionalPackages({ packages: ["pdf-parse@1.1.1"] })],
   },
+  dirs: ["./trigger"],
 });

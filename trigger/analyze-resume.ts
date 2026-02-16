@@ -43,6 +43,7 @@ export const analyzeResumeTask = task({
       }
       const arrayBuffer = await response.arrayBuffer();
       const fileBuffer = Buffer.from(arrayBuffer);
+      console.timeEnd("Fetch File");
 
       // 4. Extract text
       logger.info("Extracting text from PDF");
