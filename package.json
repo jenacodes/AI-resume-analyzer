@@ -3,9 +3,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "react-router build",
+    "build": "npx prisma generate && react-router build",
     "dev": "react-router dev",
     "start": "npx prisma migrate deploy && react-router-serve ./build/server/index.js",
+    "postinstall": "npx prisma generate",
     "test": "vitest",
     "typecheck": "react-router typegen && tsc"
   },
