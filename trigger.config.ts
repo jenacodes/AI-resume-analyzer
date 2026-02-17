@@ -1,5 +1,6 @@
 import { defineConfig } from "@trigger.dev/sdk";
 import { additionalPackages } from "@trigger.dev/build/extensions/core";
+import { prismaExtension } from "@trigger.dev/build/extensions/prisma";
 
 export default defineConfig({
   project: "proj_azvfbfsgvjwlclgxgihg", // project ID
@@ -17,7 +18,13 @@ export default defineConfig({
   },
   build: {
     external: ["pdf-parse"],
-    extensions: [additionalPackages({ packages: ["pdf-parse@1.1.1"] })],
+    extensions: [
+      prismaExtension({
+        mode: "legacy",
+        schema: "prisma/schema.prisma",
+      }),
+      additionalPackages({ packages: ["pdf-parse@1.1.1"] }),
+    ],
   },
   dirs: ["./trigger"],
 });

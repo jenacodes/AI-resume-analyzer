@@ -157,14 +157,14 @@ export default function EditProfile({ loaderData }: Route.ComponentProps) {
                         className="w-full bg-gray-100 border-4 border-black p-3 text-gray-500 font-bold cursor-not-allowed"
                         placeholder="Enter your email"
                       />
-                      <div className="absolute right-3 top-3">
+                      {/* <div className="absolute right-3 top-3">
                         <Link
                           to="/settings/email"
                           className="text-xs font-black text-neo-primary uppercase hover:underline"
                         >
                           Change
                         </Link>
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                 </div>

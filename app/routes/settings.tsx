@@ -196,17 +196,17 @@ export default function Settings({ loaderData }: Route.ComponentProps) {
                 >
                   <Link
                     to="/settings/email"
-                    className="w-full flex items-center justify-between p-4 border-4 border-black bg-white shadow-neo-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all group"
+                    className="w-full flex items-center justify-between p-2 border-4 border-black bg-white shadow-neo-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all group"
                   >
                     <div className="flex items-center gap-4">
                       <div className="p-2 bg-neo-secondary border-2 border-black text-white">
-                        <Mail className="w-5 h-5" />
+                        <Mail className="w-3 h-3" />
                       </div>
                       <div className="text-left">
                         <p className="text-black font-bold uppercase">
                           Email Address
                         </p>
-                        <p className="text-sm text-gray-600 font-bold">
+                        <p className="text-xs text-gray-600 font-bold">
                           {user.email}
                         </p>
                       </div>
@@ -220,13 +220,13 @@ export default function Settings({ loaderData }: Route.ComponentProps) {
                   >
                     <div className="flex items-center gap-4">
                       <div className="p-2 bg-neo-accent border-2 border-black text-black">
-                        <Lock className="w-5 h-5" />
+                        <Lock className="w-3 h-3" />
                       </div>
                       <div className="text-left">
                         <p className="text-black font-bold uppercase">
                           Change Password
                         </p>
-                        <p className="text-sm text-gray-600 font-bold">
+                        <p className="text-xs text-gray-600 font-bold">
                           Update your password
                         </p>
                       </div>
