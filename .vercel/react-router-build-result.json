@@ -1,0 +1,363 @@
+{
+  "buildManifest": {
+    "serverBundles": {
+      "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0": {
+        "id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+        "file": "build/server/nodejs_eyJydW50aW1lIjoibm9kZWpzIn0/index.js",
+        "config": {
+          "runtime": "nodejs"
+        }
+      }
+    },
+    "routeIdToServerBundleId": {
+      "routes/home": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/resume.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/scan": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/resumes": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/profile": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/profile.edit": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/settings": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/login": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/signup": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/logout": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/cover-letter": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/api.uploadthing": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/api.download-data": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/settings.email": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/settings.password": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0"
+    },
+    "routes": {
+      "root": {
+        "id": "root",
+        "file": "app/root.tsx",
+        "path": "",
+        "config": {}
+      },
+      "routes/home": {
+        "id": "routes/home",
+        "parentId": "root",
+        "file": "app/routes/home.tsx",
+        "index": true,
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/resume.$id": {
+        "id": "routes/resume.$id",
+        "parentId": "root",
+        "file": "app/routes/resume.$id.tsx",
+        "path": "resume/:id",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/scan": {
+        "id": "routes/scan",
+        "parentId": "root",
+        "file": "app/routes/scan.tsx",
+        "path": "scan",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/resumes": {
+        "id": "routes/resumes",
+        "parentId": "root",
+        "file": "app/routes/resumes.tsx",
+        "path": "resumes",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/profile": {
+        "id": "routes/profile",
+        "parentId": "root",
+        "file": "app/routes/profile.tsx",
+        "path": "profile",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/profile.edit": {
+        "id": "routes/profile.edit",
+        "parentId": "root",
+        "file": "app/routes/profile.edit.tsx",
+        "path": "profile/edit",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/settings": {
+        "id": "routes/settings",
+        "parentId": "root",
+        "file": "app/routes/settings.tsx",
+        "path": "settings",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/login": {
+        "id": "routes/login",
+        "parentId": "root",
+        "file": "app/routes/login.tsx",
+        "path": "login",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/signup": {
+        "id": "routes/signup",
+        "parentId": "root",
+        "file": "app/routes/signup.tsx",
+        "path": "signup",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/logout": {
+        "id": "routes/logout",
+        "parentId": "root",
+        "file": "app/routes/logout.tsx",
+        "path": "logout",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/cover-letter": {
+        "id": "routes/cover-letter",
+        "parentId": "root",
+        "file": "app/routes/cover-letter.tsx",
+        "path": "cover-letter",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/api.uploadthing": {
+        "id": "routes/api.uploadthing",
+        "parentId": "root",
+        "file": "app/routes/api.uploadthing.ts",
+        "path": "api/uploadthing",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/api.download-data": {
+        "id": "routes/api.download-data",
+        "parentId": "root",
+        "file": "app/routes/api.download-data.ts",
+        "path": "/api/download-data",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/settings.email": {
+        "id": "routes/settings.email",
+        "parentId": "root",
+        "file": "app/routes/settings.email.tsx",
+        "path": "settings/email",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/settings.password": {
+        "id": "routes/settings.password",
+        "parentId": "root",
+        "file": "app/routes/settings.password.tsx",
+        "path": "settings/password",
+        "config": {
+          "runtime": "nodejs"
+        }
+      }
+    }
+  },
+  "reactRouterConfig": {
+    "appDirectory": "C:/Users/jenak/Desktop/AI-resume-analyzer/app",
+    "basename": "/",
+    "buildDirectory": "C:/Users/jenak/Desktop/AI-resume-analyzer/build",
+    "future": {
+      "v8_middleware": false,
+      "unstable_optimizeDeps": false,
+      "unstable_splitRouteModules": false,
+      "unstable_subResourceIntegrity": false,
+      "unstable_viteEnvironmentApi": false
+    },
+    "routes": {
+      "root": {
+        "id": "root",
+        "file": "root.tsx",
+        "path": ""
+      },
+      "routes/home": {
+        "id": "routes/home",
+        "parentId": "root",
+        "file": "routes/home.tsx",
+        "index": true
+      },
+      "routes/resume.$id": {
+        "id": "routes/resume.$id",
+        "parentId": "root",
+        "file": "routes/resume.$id.tsx",
+        "path": "resume/:id"
+      },
+      "routes/scan": {
+        "id": "routes/scan",
+        "parentId": "root",
+        "file": "routes/scan.tsx",
+        "path": "scan"
+      },
+      "routes/resumes": {
+        "id": "routes/resumes",
+        "parentId": "root",
+        "file": "routes/resumes.tsx",
+        "path": "resumes"
+      },
+      "routes/profile": {
+        "id": "routes/profile",
+        "parentId": "root",
+        "file": "routes/profile.tsx",
+        "path": "profile"
+      },
+      "routes/profile.edit": {
+        "id": "routes/profile.edit",
+        "parentId": "root",
+        "file": "routes/profile.edit.tsx",
+        "path": "profile/edit"
+      },
+      "routes/settings": {
+        "id": "routes/settings",
+        "parentId": "root",
+        "file": "routes/settings.tsx",
+        "path": "settings"
+      },
+      "routes/login": {
+        "id": "routes/login",
+        "parentId": "root",
+        "file": "routes/login.tsx",
+        "path": "login"
+      },
+      "routes/signup": {
+        "id": "routes/signup",
+        "parentId": "root",
+        "file": "routes/signup.tsx",
+        "path": "signup"
+      },
+      "routes/logout": {
+        "id": "routes/logout",
+        "parentId": "root",
+        "file": "routes/logout.tsx",
+        "path": "logout"
+      },
+      "routes/cover-letter": {
+        "id": "routes/cover-letter",
+        "parentId": "root",
+        "file": "routes/cover-letter.tsx",
+        "path": "cover-letter"
+      },
+      "routes/api.uploadthing": {
+        "id": "routes/api.uploadthing",
+        "parentId": "root",
+        "file": "routes/api.uploadthing.ts",
+        "path": "api/uploadthing"
+      },
+      "routes/api.download-data": {
+        "id": "routes/api.download-data",
+        "parentId": "root",
+        "file": "routes/api.download-data.ts",
+        "path": "/api/download-data"
+      },
+      "routes/settings.email": {
+        "id": "routes/settings.email",
+        "parentId": "root",
+        "file": "routes/settings.email.tsx",
+        "path": "settings/email"
+      },
+      "routes/settings.password": {
+        "id": "routes/settings.password",
+        "parentId": "root",
+        "file": "routes/settings.password.tsx",
+        "path": "settings/password"
+      }
+    },
+    "routeDiscovery": {
+      "mode": "lazy",
+      "manifestPath": "/__manifest"
+    },
+    "serverBuildFile": "index.js",
+    "serverModuleFormat": "esm",
+    "ssr": true,
+    "unstable_routeConfig": [
+      {
+        "id": "root",
+        "path": "",
+        "file": "root.tsx",
+        "children": [
+          {
+            "file": "routes/home.tsx",
+            "index": true
+          },
+          {
+            "file": "routes/resume.$id.tsx",
+            "path": "resume/:id"
+          },
+          {
+            "file": "routes/scan.tsx",
+            "path": "scan"
+          },
+          {
+            "file": "routes/resumes.tsx",
+            "path": "resumes"
+          },
+          {
+            "file": "routes/profile.tsx",
+            "path": "profile"
+          },
+          {
+            "file": "routes/profile.edit.tsx",
+            "path": "profile/edit"
+          },
+          {
+            "file": "routes/settings.tsx",
+            "path": "settings"
+          },
+          {
+            "file": "routes/login.tsx",
+            "path": "login"
+          },
+          {
+            "file": "routes/signup.tsx",
+            "path": "signup"
+          },
+          {
+            "file": "routes/logout.tsx",
+            "path": "logout"
+          },
+          {
+            "file": "routes/cover-letter.tsx",
+            "path": "cover-letter"
+          },
+          {
+            "file": "routes/api.uploadthing.ts",
+            "path": "api/uploadthing"
+          },
+          {
+            "file": "routes/api.download-data.ts",
+            "path": "/api/download-data"
+          },
+          {
+            "file": "routes/settings.email.tsx",
+            "path": "settings/email"
+          },
+          {
+            "file": "routes/settings.password.tsx",
+            "path": "settings/password"
+          }
+        ]
+      }
+    ]
+  },
+  "viteConfig": {
+    "build": {
+      "assetsDir": "assets"
+    }
+  }
+}

@@ -1,17 +1,19 @@
 import type { Route } from "./+types/resume.$id";
 import { Sidebar } from "../components/Sidebar";
 import { AnalysisPanel } from "../components/AnalysisPanel";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { Link, redirect, useFetcher, useRevalidator } from "react-router";
 import Navbar from "../components/Navbar";
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 
 import { getSession } from "~/sessions";
 import { db } from "~/db.server";
 import type { AnalysisResult } from "~/services/gemini.server";
-import PDFViewer from "../components/PDFViewer";
 import { tasks } from "@trigger.dev/sdk";
 import type { analyzeResumeTask } from "../../trigger/analyze-resume";
+
+// Lazy-load PDFViewer so it only runs on the client (pdfjs needs browser APIs)
+const PDFViewer = lazy(() => import("../components/PDFViewer"));
 
 //1. This runs and fetches
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -129,7 +131,15 @@ export default function ResumeDetail({ loaderData }: Route.ComponentProps) {
           <div className="flex-1 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden">
             {/* Left Panel: PDF Viewer */}
             <div className="w-full md:w-1/2 h-96 md:h-full border-b-4 md:border-b-0 md:border-r-4 border-black bg-gray-100 shrink-0">
-              <PDFViewer url={resume.fileUrl} />
+              <Suspense
+                fallback={
+                  <div className="flex items-center justify-center h-full">
+                    <Loader2 className="w-8 h-8 animate-spin text-neo-primary" />
+                  </div>
+                }
+              >
+                <PDFViewer url={resume.fileUrl} />
+              </Suspense>
             </div>
 
             {/* Right Panel: Analysis */}
