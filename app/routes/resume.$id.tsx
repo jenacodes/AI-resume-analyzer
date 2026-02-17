@@ -5,6 +5,7 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import { Link, redirect, useFetcher, useRevalidator } from "react-router";
 import Navbar from "../components/Navbar";
 import { lazy, Suspense, useEffect } from "react";
+import { ClientOnly } from "../components/ClientOnly";
 
 import { getSession } from "~/sessions";
 import { db } from "~/db.server";
@@ -131,15 +132,23 @@ export default function ResumeDetail({ loaderData }: Route.ComponentProps) {
           <div className="flex-1 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden">
             {/* Left Panel: PDF Viewer */}
             <div className="w-full md:w-1/2 h-96 md:h-full border-b-4 md:border-b-0 md:border-r-4 border-black bg-gray-100 shrink-0">
-              <Suspense
+              <ClientOnly
                 fallback={
                   <div className="flex items-center justify-center h-full">
                     <Loader2 className="w-8 h-8 animate-spin text-neo-primary" />
                   </div>
                 }
               >
-                <PDFViewer url={resume.fileUrl} />
-              </Suspense>
+                <Suspense
+                  fallback={
+                    <div className="flex items-center justify-center h-full">
+                      <Loader2 className="w-8 h-8 animate-spin text-neo-primary" />
+                    </div>
+                  }
+                >
+                  <PDFViewer url={resume.fileUrl} />
+                </Suspense>
+              </ClientOnly>
             </div>
 
             {/* Right Panel: Analysis */}

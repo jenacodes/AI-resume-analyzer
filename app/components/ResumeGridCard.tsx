@@ -1,7 +1,12 @@
 import { Link } from "react-router";
-import { ArrowRight, Building2, Calendar } from "lucide-react";
+import { ArrowRight, Building2, Calendar, Loader2 } from "lucide-react";
 import type { Resume } from "@prisma/client";
 import type { AnalysisResult } from "~/services/gemini.server";
+import { lazy, Suspense } from "react";
+import { ClientOnly } from "./ClientOnly";
+
+// Lazy-load so pdfjs only runs on the client (avoids SSR DOMMatrix error)
+const PDFThumbnail = lazy(() => import("./PDFThumbnail"));
 
 interface ResumeWithFeedback extends Resume {
   feedback: AnalysisResult | null;
@@ -21,17 +26,23 @@ export function ResumeGridCard({ resume }: ResumeGridCardProps) {
     >
       {/* Image Preview Section */}
       <div className="relative h-48 overflow-hidden bg-gray-200 border-b-4 border-black">
-        <iframe
-          src={resume.fileUrl}
-          title={`${resume.title} Resume`}
-          className="w-full h-full object-cover object-top grayscale group-hover:grayscale-0 transition-all duration-500"
-        />
-        {/* We just show a generic 'Resume' icon or pattern because we only have PDFs */}
-        {/* <div className="w-full h-full flex items-center justify-center bg-neo-bg">
-          <span className="font-black text-4xl text-gray-300 uppercase -rotate-12 select-none">
-            PREVIEW
-          </span>
-        </div> */}
+        <ClientOnly
+          fallback={
+            <div className="flex items-center justify-center h-full">
+              <Loader2 className="w-8 h-8 animate-spin text-neo-primary" />
+            </div>
+          }
+        >
+          <Suspense
+            fallback={
+              <div className="flex items-center justify-center h-full">
+                <Loader2 className="w-8 h-8 animate-spin text-neo-primary" />
+              </div>
+            }
+          >
+            <PDFThumbnail url={resume.fileUrl} />
+          </Suspense>
+        </ClientOnly>
 
         {/* Score Badge */}
         <div className="absolute top-0 right-0 p-2 bg-black text-white font-black text-xl border-l-4 border-b-4 border-white">
