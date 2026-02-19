@@ -4,8 +4,8 @@
 
 A modern, high-performance web application designed to help job seekers optimize their resumes for Applicant Tracking Systems (ATS) and human recruiters. Built with an event-driven architecture to handle heavy AI processing workloads without compromising user experience.
 
-
 ## 📸 A view of the app
+
 ![Dashboard](/public/Dashboard.png)
 ![Analysis](/public/Analysis.png)
 
@@ -45,11 +45,14 @@ The server does not make the user wait for the AI.
 
 1.  **Immediate Feedback**: The interaction creates a `Resume` record in the DB with status `PENDING` and immediately returns `200 OK`.
 2.  **Optimistic UI**: The frontend sees the `PENDING` status and shows a "Processing" card, allowing the user to continue navigating.
-3.  **Background Worker**: The server continues processing in the background:
-    - `fetch(fileUrl)`: Downloads the file stream.
-    - `pdf-parse`: Extracts raw text buffer.
-    - `Gemini API`: Sends the text + prompt for analysis.
-    - **Final Update**: Updates the DB record to `COMPLETED` with the JSON result.
+3.  **Background Worker (Trigger.dev)**: The server offloads the heavy lifting to Trigger.dev, ensuring durability and retries:
+    - **Reliability**: If the server restarts, the job isn't lost.
+    - **Scalability**: Can handle concurrent analysis jobs without blocking the main thread.
+    - **Workflow**:
+      - `fetch(fileUrl)`: Downloads the file stream.
+      - `pdf-parse`: Extracts raw text buffer.
+      - `Gemini API`: Sends the text + prompt for analysis.
+      - **Final Update**: Updates the DB record to `COMPLETED` with the JSON result.
 
 ```mermaid
 sequenceDiagram
@@ -57,7 +60,9 @@ sequenceDiagram
     participant Browser
     participant Storage (UploadThing)
     participant Server
+
     participant DB
+    participant Trigger (Background Jobs)
     participant AI (Gemini)
 
     User->>Browser: Selects PDF
@@ -65,14 +70,15 @@ sequenceDiagram
     Storage-->>Browser: Returns URL
     Browser->>Server: Submits URL Form
     Server->>DB: Create Record (Status: PENDING)
+    Server->>Trigger: Dispatch Analysis Job
     Server-->>Browser: Returns 200 OK (User sees "Processing")
 
     par Background Task
-        Server->>Storage: Fetch File Stream
-        Server->>Server: Extract Text (pdf-parse)
-        Server->>AI: Send Prompt + Text
-        AI-->>Server: Return JSON Analysis
-        Server->>DB: Update Record (Status: COMPLETED)
+        Trigger->>Storage: Fetch File Stream
+        Trigger->>Trigger: Extract Text (pdf-parse)
+        Trigger->>AI: Send Prompt + Text
+        AI-->>Trigger: Return JSON Analysis
+        Trigger->>DB: Update Record (Status: COMPLETED)
     end
 ```
 
@@ -101,6 +107,11 @@ sequenceDiagram
 - **Why not OpenAI?** Gemini 2.5 Flash offers a significantly larger context window at a lower cost/latency ratio for text analysis tasks.
 - **Structured Output**: We strictly enforce `JSON` schema validation using **Zod** to ensure the AI never breaks our UI with malformed data.
 
+### **Background Jobs: Trigger.dev**
+
+- **Why?** Serverless functions (Vercel) have timeout limits (10-60s). AI analysis can take longer.
+- **Solution**: Trigger.dev allows us to run long-running jobs (up to hours) with zero timeout anxiety, automatic retries, and detailed logs.
+
 ---
 
 ## ✨ Features Breakdown
@@ -113,6 +124,12 @@ We don't just "read" the resume; we score it based on 4 pillars:
 2.  **Content Impact**: Do you use "Action Verbs" and "Metrics" (e.g., "Increased revenue by 40%")?
 3.  **Structure**: Is the hierarchy logical?
 4.  **Skills Gap**: (Coming soon) Comparing against live job descriptions.
+
+### ✍️ Smart Cover Letter Generator
+
+- **Context-Aware**: Uses your resume data AND the specific job description to write a tailored cover letter.
+- **Tone Adjustment**: Select between Professional, Enthusiastic, or Confident tones.
+- **Instant Edit**: Generated markdown can be edited directly in the app.
 
 ### 🛡️ Security First
 
@@ -134,6 +151,9 @@ We don't just "read" the resume; we score it based on 4 pillars:
 │   └── uploadthing.server.ts # Storage configuration
 ├── /utils          # Helpers & Zod Refinements
 └── root.tsx        # Global layout & Context providers
+/trigger            # Background Job Definitions
+└── resume-analysis.ts # The long-running task logic
+
 ```
 
 ---
@@ -183,9 +203,19 @@ We don't just "read" the resume; we score it based on 4 pillars:
 
     # Auth
     SESSION_SECRET="super-secret-key"
+
+    # Background Jobs (Trigger.dev)
+    TRIGGER_SECRET_KEY="tr_dev_..."
     ```
 
-5.  **Run Development Server**
+5.  **Start Background Worker**
+    In a separate terminal:
+
+    ```bash
+    npx trigger.dev@latest dev
+    ```
+
+6.  **Run Development Server**
     ```bash
     npm run dev
     ```
