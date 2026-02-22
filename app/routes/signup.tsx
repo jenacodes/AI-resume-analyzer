@@ -75,7 +75,7 @@ export async function action({ request }: Route.ActionArgs) {
   session.set("userId", user.id);
 
   //7. Redirect to the home page
-  return redirect("/", {
+  return redirect("/dashboard", {
     headers: {
       "Set-Cookie": await commitSession(session),
     },

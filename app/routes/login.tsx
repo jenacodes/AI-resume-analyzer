@@ -56,7 +56,7 @@ export async function action({ request }: Route.ActionArgs) {
   const session = await getSession(request.headers.get("Cookie"));
   session.set("userId", user.id);
 
-  return redirect("/", {
+  return redirect("/dashboard", {
     headers: {
       "Set-Cookie": await commitSession(session),
     },

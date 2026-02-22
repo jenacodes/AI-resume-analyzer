@@ -15,7 +15,7 @@ const Navbar = () => {
               <FileText className="w-6 h-6 text-white" />
             </div>
             <Link
-              to="/"
+              to="/dashboard"
               className="text-2xl font-black uppercase tracking-tighter text-black"
             >
               ResumeAI

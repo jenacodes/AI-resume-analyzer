@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 
 export const navItems = [
-  { icon: LayoutDashboard, label: "Dashboard", href: "/" },
+  { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
   { icon: FileText, label: "My Resumes", href: "/resumes" },
   { icon: PenTool, label: "Cover Letter", href: "/cover-letter" },
   { icon: User, label: "Profile", href: "/profile" },

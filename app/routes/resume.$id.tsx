@@ -179,7 +179,7 @@ export default function ResumeDetail({ loaderData }: Route.ComponentProps) {
                         Analyzing Resume...
                       </h3>
                       <p className="font-bold mt-2 text-gray-600">
-                        This might take a few seconds.
+                        This usually takes up to 20s
                       </p>
                     </>
                   )}
