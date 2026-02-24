@@ -107,8 +107,16 @@ export async function analyzeResume(
   jobTitle: string,
   jobDesc?: string,
 ): Promise<AnalysisResult> {
+  const today = new Date().toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
   const prompt = `
     You are an expert Senior Technical Recruiter and Hiring Manager at a top-tier tech company.
+    Today's date is: ${today}. Use this as your reference for evaluating all employment dates.
+    Any date before today is a PAST date — do NOT flag it as a future date.
     You are reviewing a resume for the specific role of: "${jobTitle}".
     ${jobDesc ? `Target Job Description: "${jobDesc}"` : ""}
 
