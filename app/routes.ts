@@ -9,6 +9,7 @@ export default [
   route("profile", "routes/profile.tsx"),
   route("profile/edit", "routes/profile.edit.tsx"),
   route("settings", "routes/settings.tsx"),
+  route("settings/password", "routes/settings.password.tsx"),
   route("login", "routes/login.tsx"),
   route("signup", "routes/signup.tsx"),
   route("logout", "routes/logout.tsx"),
