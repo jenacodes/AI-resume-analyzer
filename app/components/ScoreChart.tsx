@@ -1,31 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 
 interface ScoreChartProps {
   score: number;
   label: string;
-  color?: "blue" | "purple" | "green" | "pink";
   size?: "sm" | "md" | "lg";
 }
 
-export function ScoreChart({
-  score,
-  label,
-  color = "blue",
-  size = "md",
-}: ScoreChartProps) {
+export function ScoreChart({ score, label, size = "md" }: ScoreChartProps) {
   const [progress, setProgress] = useState(0);
+  const uid = useId();
+  const gradientId = `score-gradient-${uid.replace(/:/g, "")}`;
 
   useEffect(() => {
     const timer = setTimeout(() => setProgress(score), 500);
     return () => clearTimeout(timer);
   }, [score]);
-
-  const colors = {
-    blue: "text-blue-500",
-    purple: "text-purple-500",
-    green: "text-emerald-500",
-    pink: "text-pink-500",
-  };
 
   const sizes = {
     sm: 80,
@@ -42,9 +31,7 @@ export function ScoreChart({
     <div className="flex flex-col items-center gap-2">
       <div className="relative flex items-center justify-center">
         {/* Glowing background effect */}
-        <div
-          className={`absolute inset-0 rounded-full blur-xl opacity-20 ${colors[color].replace("text-", "bg-")}`}
-        />
+        <div className="absolute inset-0 rounded-full blur-xl opacity-20 bg-neo-primary" />
 
         <svg
           width={sizes[size]}
@@ -52,10 +39,11 @@ export function ScoreChart({
           className="transform -rotate-90"
         >
           <defs>
-            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#3b82f6" /> {/* Tailwind blue-500 */}
-              <stop offset="100%" stopColor="#9333ea" />{" "}
-              {/* Tailwind purple-500 */}
+            <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#2563eb" />{" "}
+              {/* neo-primary: Electric Blue */}
+              <stop offset="100%" stopColor="#db2777" />{" "}
+              {/* neo-secondary: Hot Pink */}
             </linearGradient>
           </defs>
 
@@ -74,7 +62,7 @@ export function ScoreChart({
             cy={sizes[size] / 2}
             r={radius}
             fill="none"
-            stroke="url(#gradient)"
+            stroke={`url(#${gradientId})`}
             strokeWidth={strokeWidth}
             strokeDasharray={circumference}
             strokeDashoffset={offset}
@@ -83,10 +71,12 @@ export function ScoreChart({
           />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center flex-col">
-          <span className={`text-2xl font-bold text-black`}>{progress}%</span>
+          <span className="text-2xl font-bold text-neo-dark">{progress}%</span>
         </div>
       </div>
-      <span className="text-sm font-medium text-slate-400">{label}</span>
+      <span className="text-sm font-bold text-neo-dark uppercase tracking-wide">
+        {label}
+      </span>
     </div>
   );
 }

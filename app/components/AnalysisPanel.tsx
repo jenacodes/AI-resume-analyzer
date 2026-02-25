@@ -34,7 +34,7 @@ export function AnalysisPanel({ feedback }: AnalysisPanelProps) {
           </p>
         </div>
         <div className="text-right">
-          <div className="text-6xl font-black text-black drop-shadow-[4px_4px_0_rgba(0,0,0,1)]">
+          <div className="text-6xl font-black text-black drop-shadow-[3px_3px_0_rgba(0,0,0,1)]">
             {feedback.overallScore}
             <span className="text-2xl text-gray-500">/100</span>
           </div>
@@ -46,30 +46,14 @@ export function AnalysisPanel({ feedback }: AnalysisPanelProps) {
 
       {/* Score Charts Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 bg-white border-4 border-black shadow-neo">
-        <ScoreChart
-          score={feedback.ATS.score}
-          label="ATS Check"
-          color="blue"
-          size="sm"
-        />
-        <ScoreChart
-          score={feedback.content.score}
-          label="Content"
-          color="purple"
-          size="sm"
-        />
+        <ScoreChart score={feedback.ATS.score} label="ATS Check" size="sm" />
+        <ScoreChart score={feedback.content.score} label="Content" size="sm" />
         <ScoreChart
           score={feedback.structure.score}
           label="Structure"
-          color="pink"
           size="sm"
         />
-        <ScoreChart
-          score={feedback.skills.score}
-          label="Skills"
-          color="green"
-          size="sm"
-        />
+        <ScoreChart score={feedback.skills.score} label="Skills" size="sm" />
       </div>
 
       {/* Detailed Feedback Sections */}
