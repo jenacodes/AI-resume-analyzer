@@ -16,13 +16,11 @@ function getCallbackUrl() {
 
 /**
  * Build the Google OAuth authorization URL and redirect the user to it.
- * Generates a random `state` token stored in the session to prevent CSRF.
+ * State is stored in a dedicated short-lived cookie (not the main session)
+ * so it survives the round-trip to Google cleanly.
  */
-export async function redirectToGoogle(request: Request) {
+export async function redirectToGoogle() {
   const state = randomBytes(16).toString("hex");
-
-  const session = await getSession(request.headers.get("Cookie"));
-  session.set("oauthState", state);
 
   const params = new URLSearchParams({
     client_id: process.env.GOOGLE_CLIENT_ID!,
@@ -33,8 +31,20 @@ export async function redirectToGoogle(request: Request) {
     state,
   });
 
+  // Store state in its own cookie so it's independent of the main session
+  const stateCookie = [
+    `oauth_state=${state}`,
+    "HttpOnly",
+    "Path=/",
+    "SameSite=Lax",
+    "Max-Age=300", // 5 minutes — plenty of time to complete the OAuth flow
+    process.env.NODE_ENV === "production" ? "Secure" : "",
+  ]
+    .filter(Boolean)
+    .join("; ");
+
   return redirect(`${GOOGLE_AUTH_URL}?${params.toString()}`, {
-    headers: { "Set-Cookie": await commitSession(session) },
+    headers: { "Set-Cookie": stateCookie },
   });
 }
 
@@ -46,27 +56,37 @@ export async function handleGoogleCallback(
 ): Promise<Response> {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
-  const error = url.searchParams.get("error");
+  const googleError = url.searchParams.get("error");
   const returnedState = url.searchParams.get("state");
 
-  if (error || !code) {
+  if (googleError || !code) {
+    console.error("Google OAuth: denied or missing code. error =", googleError);
     return redirect("/login?error=google");
   }
 
-  // Verify the state parameter to prevent CSRF attacks
-  const session = await getSession(request.headers.get("Cookie"));
-  const expectedState = session.get("oauthState");
+  // Verify state from the dedicated oauth_state cookie
+  const cookieHeader = request.headers.get("Cookie") ?? "";
+  const stateCookieMatch = cookieHeader.match(/oauth_state=([^;]+)/);
+  const expectedState = stateCookieMatch?.[1];
+
+  console.log("Google OAuth state check:", {
+    returned: returnedState,
+    expected: expectedState,
+    match: returnedState === expectedState,
+    callbackUrl: getCallbackUrl(),
+  });
 
   if (!returnedState || !expectedState || returnedState !== expectedState) {
-    console.error("Google OAuth: state mismatch — possible CSRF attempt");
+    console.error(
+      "Google OAuth: state mismatch — possible CSRF or cookie issue",
+    );
     return redirect("/login?error=google");
   }
 
-  // Clear the one-time state from the session now that it's been used
-  session.unset("oauthState");
+  // Expire the state cookie now that it's been consumed
+  const clearStateCookie = "oauth_state=; Max-Age=0; Path=/";
 
   try {
-    // Save the cleared state before the try block passes the session along
     // 1. Exchange authorization code for access token
     const tokenRes = await fetch(GOOGLE_TOKEN_URL, {
       method: "POST",
@@ -81,7 +101,11 @@ export async function handleGoogleCallback(
     });
 
     if (!tokenRes.ok) {
-      throw new Error("Failed to exchange code for token");
+      const body = await tokenRes.text();
+      console.error("Google OAuth: token exchange failed:", body);
+      return redirect("/login?error=google", {
+        headers: { "Set-Cookie": clearStateCookie },
+      });
     }
 
     const { access_token } = (await tokenRes.json()) as {
@@ -94,7 +118,11 @@ export async function handleGoogleCallback(
     });
 
     if (!profileRes.ok) {
-      throw new Error("Failed to fetch Google user profile");
+      const body = await profileRes.text();
+      console.error("Google OAuth: userinfo fetch failed:", body);
+      return redirect("/login?error=google", {
+        headers: { "Set-Cookie": clearStateCookie },
+      });
     }
 
     const profile = (await profileRes.json()) as {
@@ -106,14 +134,16 @@ export async function handleGoogleCallback(
     const { id: googleId, email, name } = profile;
 
     if (!email) {
-      throw new Error("No email returned from Google");
+      console.error("Google OAuth: no email in profile:", profile);
+      return redirect("/login?error=google", {
+        headers: { "Set-Cookie": clearStateCookie },
+      });
     }
 
     // 3. Find or create user
     let user = await db.user.findUnique({ where: { googleId } });
 
     if (!user) {
-      // Try to link by email (existing email/password account)
       user = await db.user.findUnique({ where: { email } });
       if (user) {
         user = await db.user.update({
@@ -121,22 +151,26 @@ export async function handleGoogleCallback(
           data: { googleId },
         });
       } else {
-        // Brand-new Google user
         user = await db.user.create({
           data: { email, googleId, name: name ?? null },
         });
       }
     }
 
-    // 4. Write the userId into the app session (same as email/password login)
-    // Reuse the existing session (which already had oauthState cleared above)
+    // 4. Write userId into the main app session cookie
+    const session = await getSession(request.headers.get("Cookie"));
     session.set("userId", user.id);
 
     return redirect("/dashboard", {
-      headers: { "Set-Cookie": await commitSession(session) },
+      headers: [
+        ["Set-Cookie", await commitSession(session)],
+        ["Set-Cookie", clearStateCookie],
+      ],
     });
   } catch (err) {
-    console.error("Google OAuth error:", err);
-    return redirect("/login?error=google");
+    console.error("Google OAuth: unexpected error:", err);
+    return redirect("/login?error=google", {
+      headers: { "Set-Cookie": clearStateCookie },
+    });
   }
 }
