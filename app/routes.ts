@@ -13,6 +13,8 @@ export default [
   route("login", "routes/login.tsx"),
   route("signup", "routes/signup.tsx"),
   route("logout", "routes/logout.tsx"),
+  route("auth/google", "routes/auth.google.ts"),
+  route("auth/google/callback", "routes/auth.google.callback.ts"),
   route("cover-letter", "routes/cover-letter.tsx"),
   route("api/uploadthing", "routes/api.uploadthing.ts"),
   route("/api/download-data", "routes/api.download-data.ts"),

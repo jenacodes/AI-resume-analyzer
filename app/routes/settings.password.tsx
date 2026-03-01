@@ -69,6 +69,15 @@ export async function action({ request }: Route.ActionArgs) {
     throw redirect("/login");
   }
 
+  if (!user.passwordHash) {
+    return {
+      errors: {
+        currentPassword:
+          "Your account uses Google sign-in and does not have a password.",
+      },
+    };
+  }
+
   const isValid = await bcrypt.compare(currentPassword, user.passwordHash);
 
   if (!isValid) {

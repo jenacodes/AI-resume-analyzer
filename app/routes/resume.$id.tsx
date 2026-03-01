@@ -20,16 +20,17 @@ const PDFViewer = lazy(() => import("../components/PDFViewer"));
 export async function loader({ request, params }: Route.LoaderArgs) {
   //Checked if user is authenticated
   const session = await getSession(request.headers.get("Cookie"));
-  if (!session.has("userId")) {
+  const userId = session.get("userId");
+  if (!userId) {
     throw redirect("/login");
   }
 
-  //Fetch the resume by ID
+  // Fetch the resume — scoped to the authenticated user to prevent IDOR
   const resume = await db.resume.findUnique({
-    where: { id: params.id },
+    where: { id: params.id, userId },
   });
 
-  //If resume not found, throw 404
+  // If resume not found OR belongs to another user, throw 404
   if (!resume) {
     throw new Response("Not Found", { status: 404 });
   }
@@ -42,8 +43,22 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   return { resume, feedback };
 }
 
-export async function action({ params }: Route.ActionArgs) {
+export async function action({ request, params }: Route.ActionArgs) {
   if (!params.id) throw new Error("Resume ID is required");
+
+  // Verify ownership before triggering analysis
+  const session = await getSession(request.headers.get("Cookie"));
+  const userId = session.get("userId");
+  if (!userId) throw redirect("/login");
+
+  const resume = await db.resume.findUnique({
+    where: { id: params.id, userId },
+    select: { id: true },
+  });
+
+  if (!resume) {
+    throw new Response("Not Found", { status: 404 });
+  }
 
   // Fire-and-forget: Trigger.dev handles execution in the background
   await tasks.trigger<typeof analyzeResumeTask>("analyze-resume", {
